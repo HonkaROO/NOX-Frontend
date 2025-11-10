@@ -107,6 +107,7 @@ export default function Login() {
 
             {/* Sign In Button */}
             <button
+            onClick={() => navigate("/dashboard")}
               type="submit"
               className="w-full bg-blue-600 text-white font-medium py-2.5 px-4 rounded-md hover:bg-blue-700 transition-colors text-base focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
             >
