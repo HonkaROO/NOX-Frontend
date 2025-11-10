@@ -45,7 +45,9 @@ Company policies and procedures`,
 
           {/* Header Actions */}
           <div className="flex items-center gap-3">
-            <button className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 font-medium">
+            <button
+              onClick={() => navigate("/login")}
+             className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 font-medium">
               Logout
             </button>
             <button className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 font-medium">
