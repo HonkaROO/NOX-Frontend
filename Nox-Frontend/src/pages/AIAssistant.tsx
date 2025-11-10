@@ -33,7 +33,7 @@ Company policies and procedures`,
 
   return (
     <HeaderLayout>
-    <div className="flex-1 bg-[#F2FAFF] flex flex-col">
+    <div className="flex-1 bg-[#F2FAFF] flex flex-col border border-[#e3e3ff] rounded-xl shadow-lg" >
       {/* Header */}
       
 
