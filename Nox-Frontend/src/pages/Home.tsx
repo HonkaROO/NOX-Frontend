@@ -13,7 +13,7 @@ export default function Index() {
       
 
       {/* Main Content Area */}
-      <div className="relative border-t border-brand-blue bg-brand-light-bg min-h-[calc(100vh-50px)]">
+      <div className="relative border-t border-brand-blue bg-gray-100 min-h-[calc(100vh-50px)]">
         <div className="max-w-[1200px] mx-auto px-6 md:px-14 py-12 md:py-16">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
             {/* Left Column */}
