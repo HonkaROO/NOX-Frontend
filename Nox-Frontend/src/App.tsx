@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
 import AIAssistant from './pages/AIAssistant';
+import HROverview from './pages/HROverview';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/AIassistant" element={<AIAssistant />} />
+        <Route path="/HROverview" element={<HROverview />} />
       </Routes>
     </Router>
   );
