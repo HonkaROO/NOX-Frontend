@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { Mic, Send } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import HeaderLayout from "@/components/layout/HeaderLayout";
 
 export default function AIAssistant() {
   const navigate = useNavigate();
@@ -31,31 +32,10 @@ Company policies and procedures`,
   };
 
   return (
+    <HeaderLayout>
     <div className="flex-1 bg-[#F2FAFF] flex flex-col">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
-          {/* Logo */}
-          <img
-          src="/NpaxLogo.png"
-          alt="N PAX Logo"
-          className="h-7 md:h-8 w-auto"
-          />
-          
-
-          {/* Header Actions */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate("/login")}
-             className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 font-medium">
-              Logout
-            </button>
-            <button className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 font-medium">
-              Contact Support
-            </button>
-          </div>
-        </div>
-      </header>
+      
 
       {/* Main Content */}
       <div className="px-6 py-6">
@@ -154,5 +134,6 @@ Company policies and procedures`,
       </div>
     </div>
     </div>
+    </HeaderLayout>
   );
 }

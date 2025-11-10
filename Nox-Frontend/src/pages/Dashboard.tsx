@@ -1,32 +1,60 @@
+import { useState } from "react";
+import HeaderLayout from "@/components/layout/HeaderLayout";
 import { useNavigate } from "react-router-dom";
+import { QuickActionCard } from "@/components/dasboard/QuickActions";
+import { TaskModal, type TaskCategory } from "@/components/modals/TaskModal";
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<TaskCategory | null>(null);
+
+  const openModal = (category: TaskCategory) => {
+    setActiveCategory(category);
+    setModalOpen(true);
+  };
+
+  const quickActions = [
+    {
+      category: 'government-forms' as TaskCategory,
+      title: 'Government Forms',
+      description: 'Complete SSS, PhilHealth, Pag-IBIG registration',
+      progress: 25,
+    },
+    {
+      category: 'department-orientation' as TaskCategory,
+      title: 'Department Orientation',
+      description: 'Learn about your team and role responsibilities',
+      progress: 67,
+    },
+    {
+      category: 'it-setup' as TaskCategory,
+      title: 'IT Setup',
+      description: 'Set up your email, accounts, and software',
+      progress: 90,
+    },
+    {
+      category: 'hr-policies' as TaskCategory,
+      title: 'HR Policies',
+      description: 'Review company policies and benefits',
+      progress: 33,
+    },
+    {
+      category: 'training-programs' as TaskCategory,
+      title: 'Training Programs',
+      description: 'Complete required training and certifications',
+      progress: 40,
+    },
+    {
+      category: 'documentation' as TaskCategory,
+      title: 'Documentation',
+      description: 'Submit required forms and documents',
+      progress: 88,
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
-          {/* Logo */}
-          <img
-          src="/NpaxLogo.png"
-          alt="N PAX Logo"
-          className="h-7 md:h-8 w-auto"
-          />
-
-          {/* Header Actions */}
-          <div className="flex items-center gap-3">
-            <button
-            onClick={() => navigate("/login")} className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 font-medium">
-              Logout
-            </button>
-            <button className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 font-medium">
-              Contact Support
-            </button>
-          </div>
-        </div>
-      </header>
-
+    <HeaderLayout>
       {/* Main Content */}
       <div className="px-6 py-6">
         {/* Welcome Section */}
@@ -38,11 +66,16 @@ export default function Dashboard() {
             <button className="pb-3 px-1 text-indigo-600 border-b-2 border-indigo-600 font-medium">
               Dashboard
             </button>
-            <button onClick={() => navigate("/AIassistant")} className="pb-3 px-1 text-gray-600 hover:text-gray-800 font-medium">
+            <button 
+              onClick={() => navigate("/AIassistant")} 
+              className="pb-3 px-1 text-gray-600 hover:text-gray-800 font-medium"
+            >
               AI Assistant
             </button>
             <button
-            onClick={() => navigate("/profile")} className="pb-3 px-1 text-gray-600 hover:text-gray-800 font-medium">
+              onClick={() => navigate("/profile")} 
+              className="pb-3 px-1 text-gray-600 hover:text-gray-800 font-medium"
+            >
               Profile
             </button>
           </div>
@@ -81,118 +114,36 @@ export default function Dashboard() {
 
           {/* Grid of Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {/* Government Forms Card */}
-            <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2 text-center">
-                Government Forms
-              </h3>
-              <p className="text-sm text-gray-600 mb-4 text-center">
-                Complete SSS, PhilHealth, Pag-IBIG registration
-              </p>
-              <div className="mb-3">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-medium text-gray-700">25% Complete</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-1.5">
-                  <div className="bg-indigo-600 h-1.5 rounded-full" style={{ width: '25%' }}></div>
-                </div>
-              </div>
-            </div>
-
-            {/* Department Orientation Card */}
-            <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2 text-center">
-                Department Orientation
-              </h3>
-              <p className="text-sm text-gray-600 mb-4 text-center">
-                Learn about your team and role responsibilities
-              </p>
-              <div className="mb-3">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-medium text-gray-700">67% Complete</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-1.5">
-                  <div className="bg-indigo-600 h-1.5 rounded-full" style={{ width: '67%' }}></div>
-                </div>
-              </div>
-            </div>
-
-            {/* IT Setup Card */}
-            <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2 text-center">
-                IT Setup
-              </h3>
-              <p className="text-sm text-gray-600 mb-4 text-center">
-                Complete SSS, PhilHealth, Pag-IBIG registration
-              </p>
-              <div className="mb-3">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-medium text-gray-700">90% Complete</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-1.5">
-                  <div className="bg-indigo-600 h-1.5 rounded-full" style={{ width: '90%' }}></div>
-                </div>
-              </div>
-            </div>
-
-            {/* HR Policies Card */}
-            <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2 text-center">
-                HR Policies
-              </h3>
-              <p className="text-sm text-gray-600 mb-4 text-center">
-                Complete SSS, PhilHealth, Pag-IBIG registration
-              </p>
-              <div className="mb-3">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-medium text-gray-700">33% Complete</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-1.5">
-                  <div className="bg-indigo-600 h-1.5 rounded-full" style={{ width: '33%' }}></div>
-                </div>
-              </div>
-            </div>
-
-            {/* Training Programs Card */}
-            <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2 text-center">
-                Training Programs
-              </h3>
-              <p className="text-sm text-gray-600 mb-4 text-center">
-                Complete SSS, PhilHealth, Pag-IBIG registration
-              </p>
-              <div className="mb-3">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-medium text-gray-700">40% Complete</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-1.5">
-                  <div className="bg-indigo-600 h-1.5 rounded-full" style={{ width: '40%' }}></div>
-                </div>
-              </div>
-            </div>
-
-            {/* Documentation Card */}
-            <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2 text-center">
-                Documentation
-              </h3>
-              <p className="text-sm text-gray-600 mb-4 text-center">
-                Complete SSS, PhilHealth, Pag-IBIG registration
-              </p>
-              <div className="mb-3">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-medium text-gray-700">88% Complete</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-1.5">
-                  <div className="bg-indigo-600 h-1.5 rounded-full" style={{ width: '88%' }}></div>
-                </div>
-              </div>
-            </div>
+            {quickActions.map((action) => (
+              <QuickActionCard
+                key={action.category}
+                title={action.title}
+                description={action.description}
+                progress={action.progress}
+                onClick={() => openModal(action.category)}
+              />
+            ))}
           </div>
         </div>
       </div>
 
+      {/* Task Modal */}
+      <TaskModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        category={activeCategory}
+      />
+
       {/* AI Assistant Button (Bottom Right) */}
+      <button 
+        onClick={() => navigate("/AIassistant")}
+        className="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full shadow-lg hover:shadow-xl transition-shadow flex flex-col items-center justify-center text-white"
+      >
+        <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center mb-1">
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+          </svg>
+        </div>
       <button className="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-br from-blue-700 to-indigo-900 hover:shadow-[0_0_15px_rgba(59,130,246,0.6)] rounded-full shadow-lg transition-all flex flex-col items-center justify-center text-white">
         <img
                   src="https://api.builder.io/api/v1/image/assets/TEMP/f3bc07a8c5c425567b5ddbdcf2cc3b48aaca8522?width=72"
@@ -202,6 +153,6 @@ export default function Dashboard() {
         
         <span className="text-[10px] font-semibold">ASK NOXY</span>
       </button>
-    </div>
-  )
+    </HeaderLayout>
+  );
 }
