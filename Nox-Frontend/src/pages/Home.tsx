@@ -17,20 +17,19 @@ export default function Index() {
 
         <div className="flex items-center gap-3">
           <button
-            onClick={() => navigate('/login')}
-            className="px-4 py-1.5 text-xs font-bold border border-brand-blue rounded-md bg-white hover:bg-gray-50 transition-colors"
-          >
-            Login
-          </button>
+            onClick={() => navigate("/login")}
+             className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 font-medium">
+              Login
+            </button>
 
-          <button className="px-5 py-1.5 text-xs font-semibold text-white bg-brand-blue rounded-md hover:bg-opacity-90 transition-colors">
-            Contact Support
-          </button>
+          <button className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 font-medium">
+              Contact Support
+            </button>
         </div>
       </header>
 
       {/* Main Content Area */}
-      <div className="relative border-t border-brand-blue bg-brand-light-bg min-h-[calc(100vh-50px)]">
+      <div className="relative border-t border-brand-blue bg-gray-100 min-h-[calc(100vh-50px)]">
         <div className="max-w-[1200px] mx-auto px-6 md:px-14 py-12 md:py-16">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
             {/* Left Column */}
