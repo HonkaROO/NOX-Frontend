@@ -1,32 +1,14 @@
+import HeaderLayout from "@/components/layout/HeaderLayout";
 import { useNavigate } from "react-router-dom";
 
 export default function Profile() {
   const navigate = useNavigate();
 
   return (
+    <HeaderLayout>
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
-          {/* Logo */}
-          <img
-          src="/NpaxLogo.png"
-          alt="N PAX Logo"
-          className="h-7 md:h-8 w-auto"
-          />
-          
-
-          {/* Header Actions */}
-          <div className="flex items-center gap-3">
-            <button className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 font-medium">
-              Logout
-            </button>
-            <button className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 font-medium">
-              Contact Support
-            </button>
-          </div>
-        </div>
-      </header>
+      
 
       {/* Main Content */}
       <div className="px-6 py-6">
@@ -39,8 +21,9 @@ export default function Profile() {
           >
             Dashboard
           </button>
-          <button onClick={() => navigate("/AIassistant")} className="pb-3 px-1 text-gray-600 hover:text-gray-800 font-medium">
-            
+          <button 
+           onClick={() => navigate("/AIassistant")}
+           className="pb-3 px-1 text-gray-600 hover:text-gray-800 font-medium">
             AI Assistant
           </button>
           <button className="pb-3 px-1 text-indigo-600 border-b-2 border-indigo-600 font-medium">
@@ -136,5 +119,6 @@ export default function Profile() {
         <span className="text-[10px] font-semibold">ASK NOXY</span>
       </button>
     </div>
+    </HeaderLayout>
   )
 }
