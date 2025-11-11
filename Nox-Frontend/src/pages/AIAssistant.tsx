@@ -66,7 +66,7 @@ Company policies and procedures`,
                 <div className="bg-white rounded p-4 w-full max-w-3xl">
                   <div className="flex items-center gap-3">
                     <img
-                      src="https://api.builder.io/api/v1/image/assets/TEMP/f3bc07a8c5c425567b5ddbdcf2cc3b48aaca8522?width=72"
+                      src="RealNoxyIcon.png"
                       alt="Bot"
                       className="w-9 h-9 rounded-full"
                     />
@@ -87,7 +87,7 @@ Company policies and procedures`,
                 {/* Greeting Message */}
                 <div className="flex gap-3 items-start">
                   <img
-                    src="https://api.builder.io/api/v1/image/assets/TEMP/a80da972d2ab2de4bf02adfbd8bf2d7f2c8a0235?width=48"
+                    src="RealNoxyIcon.png"
                     alt="Message"
                     className="w-6 h-6 mt-1"
                   />
