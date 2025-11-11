@@ -122,7 +122,7 @@ export function DocumentationContent() {
  return (
   <div className="flex gap-6 h-full overflow-hidden pt-4">
         {/* Left Panel - Task List */}
-        <div className="w-64 shrink-0 space-y-3 overflow-y-auto pr-2">
+        <div className="w-96 shrink-0 space-y-3 overflow-y-auto pr-2">
           <h3 className="font-semibold text-sm text-gray-700 mb-4">
             Tasks & Requirements
           </h3>
