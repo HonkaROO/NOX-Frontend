@@ -1,11 +1,14 @@
-import { Link } from "react-router-dom";
 import { useState } from "react";
 import { Plus, Edit, Trash2, Users, Settings } from "lucide-react";
 import { DepartmentModal, type DepartmentModalType } from "@/components/modals/SuperAdminModals/DepartmentModal";
+import { SuperAdminStats } from "@/components/modals/SuperAdminModals/SuperAdminStats";
+import { SuperAdminNavigation } from "@/components/modals/SuperAdminModals/SuperAdminNavigation";
 import SuperAdminHeader from "@/components/layout/SuperAdminLayout/SuperAdminHeader";
+import { useNavigate } from "react-router-dom";
 
 
 export default function Index() {
+  const navigate = useNavigate();
   const [departments, setDepartments] = useState([
     {
       id: 1,
@@ -116,36 +119,8 @@ export default function Index() {
       
 
       <main className="px-6 lg:px-8 space-y-8 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {stats.map((stat, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-xl border border-slate-200 px-6 py-5 flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow hover:border-slate-300"
-            >
-              <div className="flex-shrink-0 p-2 bg-slate-50 rounded-lg">{stat.icon}</div>
-              <div>
-                <div className="text-sm font-medium text-slate-600 leading-tight">
-                  {stat.label}
-                </div>
-                <div className="text-2xl font-bold text-slate-800">
-                  {stat.value}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-        
-        <nav className="flex items-center justify-center gap-16 px-6 mt-8 mb-8">
-        <Link
-          to="/"
-          className="text-sm text-indigo-600 font-medium pb-2 border-b-2 border-indigo-600 hover:text-indigo-700 transition-colors"
-        >
-          Department Management
-        </Link>
-        <Link to="/user-management" className="text-sm text-slate-600 font-medium hover:text-slate-800 transition-colors">
-          User Management
-        </Link>
-        </nav>
+        <SuperAdminStats stats={stats} />
+        <SuperAdminNavigation />
 
 
 
@@ -233,7 +208,6 @@ export default function Index() {
           onSave={handleModalSave}
         />
       </main>
-
 
 
 

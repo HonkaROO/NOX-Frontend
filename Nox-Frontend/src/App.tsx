@@ -7,6 +7,9 @@ import AIAssistant from './pages/AIAssistant';
 import HROverview from './pages/HROverview';
 import SuperAdminDashboard from './pages/SuperAdminPages/SuperAdminDashboard';
 
+
+
+
 function App() {
   return (
     <Router>
@@ -18,6 +21,7 @@ function App() {
         <Route path="/AIassistant" element={<AIAssistant />} />
         <Route path="/HROverview" element={<HROverview />} />
         <Route path="/SuperAdminDashboard" element={<SuperAdminDashboard />} />
+       
       </Routes>
     </Router>
   );
