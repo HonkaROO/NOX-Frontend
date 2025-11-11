@@ -245,17 +245,7 @@ export default function SuperAdminUserManagement() {
       label: "Total Employees",
       value: totalEmployees.toString(),
     },
-    {
-      icon: (
-        <img
-          src="activeUserIcon.png"
-          alt="Active Users"
-          className="w-[70px] h-[60px]"
-        />
-      ),
-      label: "Active Users",
-      value: activeUsers.toString(),
-    },
+    
     {
       icon: (
         <img
