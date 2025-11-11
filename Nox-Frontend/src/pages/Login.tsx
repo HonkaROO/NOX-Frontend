@@ -1,16 +1,42 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { apiClient } from '@/lib/api';
 
 export default function Login() {
-  const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
+   const navigate = useNavigate();
+   const [email, setEmail] = useState('');
+   const [password, setPassword] = useState('');
+   const [rememberMe, setRememberMe] = useState(false);
+   const [isLoading, setIsLoading] = useState(false);
+   const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log('Login attempt:', { email, password, rememberMe });
-  };
+   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+     e.preventDefault();
+     setIsLoading(true);
+     setError('');
+
+     try {
+       const userData = await apiClient.login({ email, password });
+       console.log('Login successful:', userData);
+
+       // Navigate based on user role
+       const isSuperAdmin = userData.roles?.includes('SuperAdmin');
+       const isAdmin = userData.roles?.includes('Admin');
+
+       if (isSuperAdmin) {
+         navigate('/SuperAdminDashboard');
+       } else if (isAdmin) {
+         navigate('/HRDashboard');
+       } else {
+         navigate('/dashboard'); // Default for regular users
+       }
+     } catch (err) {
+       console.error('Login failed:', err);
+       setError(err instanceof Error ? err.message : 'Login failed. Please try again.');
+     } finally {
+       setIsLoading(false);
+     }
+   };
 
   return (
     <div className="min-h-screen bg-login-bg">
@@ -38,6 +64,12 @@ export default function Login() {
 
         {/* Login Form Card */}
         <div className="bg-white rounded-lg shadow-sm p-6 sm:p-8">
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit}>
             {/* Email Field */}
             <div className="mb-5">
@@ -107,11 +139,11 @@ export default function Login() {
 
             {/* Sign In Button */}
             <button
-            onClick={() => navigate("/dashboard")}
               type="submit"
-              className="w-full bg-blue-600 text-white font-medium py-2.5 px-4 rounded-md hover:bg-blue-700 transition-colors text-base focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
+              disabled={isLoading}
+              className="w-full bg-blue-600 text-white font-medium py-2.5 px-4 rounded-md hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed transition-colors text-base focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
             >
-              Sign In
+              {isLoading ? 'Signing In...' : 'Sign In'}
             </button>
           </form>
 
