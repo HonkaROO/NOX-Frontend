@@ -19,16 +19,15 @@ export default function AuthHeader({children}: LayoutProps) {
             />
     
             <div className="flex items-center gap-3">
+              
               <button
-                onClick={() => navigate('/login')}
-                className="px-4 py-1.5 text-xs font-bold border border-brand-blue rounded-md bg-white hover:bg-gray-50 transition-colors"
-              >
-                Login
-              </button>
-    
-              <button className="px-5 py-1.5 text-xs font-semibold text-white bg-brand-blue rounded-md hover:bg-opacity-90 transition-colors">
-                Contact Support
-              </button>
+              onClick={() => navigate('/login')}
+               className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 font-medium">
+              Login
+            </button>
+            <button className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 font-medium">
+              Contact Support
+            </button>
             </div>
           </header>
           <main>{children}</main>

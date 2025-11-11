@@ -142,7 +142,6 @@ export default function Dashboard() {
                   className="w-9 h-9 rounded-full"
                 />
         
-
         <span className="text-[10px] font-semibold">ASK NOXY</span>
       </button>
     </HeaderLayout>
