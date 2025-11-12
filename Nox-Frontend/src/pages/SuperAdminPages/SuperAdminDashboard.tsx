@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Edit, Trash2, Users, Settings } from "lucide-react";
 import { DepartmentModal, type DepartmentModalType } from "@/components/modals/SuperAdminModals/DepartmentModal";
 import { SuperAdminStats } from "@/components/modals/SuperAdminModals/SuperAdminStats";
@@ -6,46 +6,41 @@ import { SuperAdminNavigation } from "@/components/modals/SuperAdminModals/Super
 import SuperAdminHeader from "@/components/layout/SuperAdminLayout/SuperAdminHeader";
 import ChatbotAssistant from "@/components/chatbotkilid/ChatbotAssistant";
 import { useNavigate } from "react-router-dom";
+import { apiClient, type DepartmentDto } from "@/lib/api";
 
 
 export default function Index() {
-   const navigate = useNavigate();
-   const [departments, setDepartments] = useState([
-    {
-      id: 1,
-      name: "Advanced Analytics Digital Transformation",
-      abbr: "AADX",
-      users: 25,
-      color: "bg-purple-500",
-    },
-    {
-      id: 2,
-      name: "Enterprise Resource Planning",
-      abbr: "ERP",
-      users: 28,
-      color: "bg-green-500",
-    },
-    {
-      id: 3,
-      name: "Manufacturing Communication Frame",
-      abbr: "MCF",
-      users: 34,
-      color: "bg-red-500",
-    },
-    {
-      id: 4,
-      name: "Human Resource Companion",
-      abbr: "HRC",
-      users: 36,
-      color: "bg-yellow-500",
-    },
-  ]);
+    const navigate = useNavigate();
+    const [departments, setDepartments] = useState<DepartmentDto[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalType, setModalType] = useState<DepartmentModalType>('add');
-  const [selectedDept, setSelectedDept] = useState<any>(null);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modalType, setModalType] = useState<DepartmentModalType>('add');
+    const [selectedDept, setSelectedDept] = useState<DepartmentDto | null>(null);
 
-  const totalEmployees = departments.reduce((sum, dept) => sum + dept.users, 0);
+    useEffect(() => {
+      const fetchDepartments = async () => {
+        try {
+          setLoading(true);
+          setError(null);
+          const data = await apiClient.getAllDepartments();
+          // Filter to show only active departments and sort by creation date (oldest first)
+          const activeDepartments = data
+            .filter(dept => dept.isActive)
+            .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+          setDepartments(activeDepartments);
+        } catch (err) {
+          setError(err instanceof Error ? err.message : 'Failed to fetch departments');
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchDepartments();
+    }, []);
+
+  const totalEmployees = departments.reduce((sum, dept) => sum + dept.userCount, 0);
   const totalDepartments = departments.length;
 
   const stats = [
@@ -83,27 +78,44 @@ export default function Index() {
     setModalOpen(true);
   };
 
-  const handleModalSave = (data: any) => {
-    if (modalType === 'add') {
-      const newDept = {
-        id: Date.now(),
-        name: data.name,
-        abbr: data.name.split(' ').map((word: string) => word[0]).join('').slice(0, 4).toUpperCase(),
-        users: 0,
-        color: `bg-${['purple', 'green', 'red', 'yellow', 'blue', 'indigo'][Math.floor(Math.random() * 6)]}-500`,
-      };
-      setDepartments([...departments, newDept]);
-    } else if (modalType === 'edit' && selectedDept) {
-      setDepartments(departments.map(dept =>
-        dept.id === selectedDept.id
-          ? { ...dept, name: data.name, abbr: data.name.split(' ').map((word: string) => word[0]).join('').slice(0, 4).toUpperCase() }
-          : dept
-      ));
+  const handleModalSave = async (data: any) => {
+    try {
+      if (modalType === 'add') {
+        const newDept = await apiClient.createDepartment({
+          name: data.name,
+          description: data.description,
+        });
+        setDepartments([...departments, newDept]);
+      } else if (modalType === 'edit' && selectedDept) {
+        const updatedDept = await apiClient.updateDepartment(selectedDept.id, {
+          name: data.name,
+          description: data.description,
+        });
+        setDepartments(departments.map(dept =>
+          dept.id === selectedDept.id ? updatedDept : dept
+        ));
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save department');
     }
   };
 
-  const handleDeleteDepartment = (id: any) => {
-    setDepartments(departments.filter(dept => dept.id !== id));
+  const handleDeleteDepartment = async (id: number) => {
+    if (window.confirm('Are you sure you want to delete this department?')) {
+      try {
+        await apiClient.deleteDepartment(id);
+        // Refresh the departments list to get updated data from backend
+        const data = await apiClient.getAllDepartments();
+        const activeDepartments = data
+          .filter(dept => dept.isActive)
+          .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+        setDepartments(activeDepartments);
+        setError(null); // Clear any previous errors
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to delete department');
+        // Don't modify local state if API call fails
+      }
+    }
   };
 
  
@@ -119,37 +131,59 @@ export default function Index() {
 
 
         <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-slate-800">
-              Department Management
-            </h2>
-            <button
-              onClick={() => handleModalOpen('add')}
-              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              Add Department
-            </button>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {departments.map((dept) => (
-              <div key={dept.id} className="flex items-center gap-4 p-4 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors">
-                <div
-                  className={`w-12 h-12 rounded-full ${dept.color} flex items-center justify-center flex-shrink-0 shadow-sm`}
-                >
-                  <span className="text-white text-sm font-semibold">
-                    {dept.abbr}
-                  </span>
-                </div>
+           <div className="flex items-center justify-between mb-6">
+             <h2 className="text-lg font-semibold text-slate-800">
+               Department Management
+             </h2>
+             <button
+               onClick={() => handleModalOpen('add')}
+               className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+               disabled={loading}
+             >
+               <Plus className="w-4 h-4" />
+               Add Department
+             </button>
+           </div>
+           {error && (
+             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+               <p className="text-red-800 text-sm">{error}</p>
+             </div>
+           )}
+           {loading ? (
+             <div className="flex items-center justify-center py-8">
+               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+               <span className="ml-2 text-slate-600">Loading departments...</span>
+             </div>
+           ) : (
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {departments.map((dept) => {
+              const abbr = dept.name.split(' ').map(word => word[0]).join('').slice(0, 4).toUpperCase();
+              const colors = ['bg-purple-500', 'bg-green-500', 'bg-red-500', 'bg-yellow-500', 'bg-blue-500', 'bg-indigo-500'];
+              const color = colors[dept.id % colors.length];
 
-                <div className="flex-1">
-                  <div className="text-base font-semibold text-slate-800 leading-tight">
-                    {dept.name}
+              return (
+                <div key={dept.id} className="flex items-center gap-4 p-4 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors">
+                  <div
+                    className={`w-12 h-12 rounded-full ${color} flex items-center justify-center flex-shrink-0 shadow-sm`}
+                  >
+                    <span className="text-white text-sm font-semibold">
+                      {abbr}
+                    </span>
                   </div>
-                  <div className="text-sm text-slate-600">
-                    {dept.users} users
+
+                  <div className="flex-1">
+                    <div className="text-base font-semibold text-slate-800 leading-tight">
+                      {dept.name}
+                    </div>
+                    <div className="text-sm text-slate-600">
+                      {dept.userCount} users
+                    </div>
+                    {dept.description && (
+                      <div className="text-xs text-slate-500 mt-1">
+                        {dept.description}
+                      </div>
+                    )}
                   </div>
-                </div>
 
                 <div className="flex items-center gap-2">
                   <button
@@ -175,8 +209,10 @@ export default function Index() {
                   </button>
                 </div>
               </div>
-            ))}
-          </div>
+            );
+            })}
+            </div>
+          )}
         </div>
         <ChatbotAssistant />
 
