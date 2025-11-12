@@ -6,9 +6,6 @@ import Profile from './pages/Profile';
 import AIAssistant from './pages/AIAssistant';
 import SuperAdminDashboard from './pages/SuperAdminPages/SuperAdminDashboard';
 import SuperAdminUserManagement from './pages/SuperAdminPages/SuperAdminUserManagement';
-
-
-
 import HROverview from './pages/AdminPages/HROverview';
 import HRDashboard from './pages/AdminPages/HRDasbhoard';
 import HrEmployeeManagement from './pages/AdminPages/HREmployeeManagement';
