@@ -2,6 +2,7 @@ import { HttpClient } from './httpClient';
 import { AuthService } from './authService';
 import { UserService } from './userService';
 import { DepartmentService } from './departmentService';
+import { ChatbotService } from './chatbotService';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -10,12 +11,14 @@ class ApiClient {
   public auth: AuthService;
   public users: UserService;
   public departments: DepartmentService;
+  public chatbot: ChatbotService;
 
   constructor(baseURL: string) {
     this.httpClient = new HttpClient(baseURL);
     this.auth = new AuthService(this.httpClient);
     this.users = new UserService(this.httpClient);
     this.departments = new DepartmentService(this.httpClient);
+    this.chatbot = new ChatbotService();
   }
 
   // Legacy methods for backward compatibility
