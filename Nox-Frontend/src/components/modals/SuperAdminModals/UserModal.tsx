@@ -48,41 +48,75 @@ export function UserModal({ open, onOpenChange, type, user, departments = [], on
             e.preventDefault();
             const formData = new FormData(e.target as HTMLFormElement);
             const data = {
-              name: formData.get('name') as string,
+              firstName: formData.get('firstName') as string,
+              lastName: formData.get('lastName') as string,
+              userName: formData.get('userName') as string,
               email: formData.get('email') as string,
-              department: formData.get('department') as string,
-              jobTitle: formData.get('jobTitle') as string,
-              userRole: formData.get('userRole') as string,
+              password: formData.get('password') as string,
+              departmentId: formData.get('departmentId') as string,
+              phone: formData.get('phone') as string,
+              address: formData.get('address') as string,
+              employeeId: formData.get('employeeId') as string,
+              startDate: formData.get('startDate') as string,
             };
             handleSave(data);
           }}>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Name
+                  First Name
                 </label>
                 <input
-                  name="name"
+                  name="firstName"
                   type="text"
-                  defaultValue={type === 'edit' ? user?.name : ''}
+                  defaultValue={type === 'edit' ? user?.firstName : ''}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  placeholder="Enter name"
+                  placeholder="Enter first name"
                   required
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Email
+                  Last Name
                 </label>
                 <input
-                  name="email"
-                  type="email"
-                  defaultValue={type === 'edit' ? user?.email : ''}
+                  name="lastName"
+                  type="text"
+                  defaultValue={type === 'edit' ? user?.lastName : ''}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  placeholder="Enter email"
+                  placeholder="Enter last name"
                   required
                 />
               </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Username
+                </label>
+                <input
+                  name="userName"
+                  type="text"
+                  defaultValue={type === 'edit' ? user?.userName : ''}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="Enter username"
+                  required={type === 'add'}
+                  disabled={type === 'edit'}
+                />
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Email
+              </label>
+              <input
+                name="email"
+                type="email"
+                defaultValue={type === 'edit' ? user?.email : ''}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="Enter email"
+                required
+                disabled={type === 'edit'}
+              />
             </div>
 
             {/* Password Field - only visible in Add mode */}
@@ -111,14 +145,14 @@ export function UserModal({ open, onOpenChange, type, user, departments = [], on
                   Department
                 </label>
                 <select
-                  name="department"
-                  defaultValue={type === 'edit' ? user?.department : ''}
+                  name="departmentId"
+                  defaultValue={type === 'edit' ? user?.departmentId : ''}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   required
                 >
                   <option value="">Select Department</option>
                   {departments.map((dept) => (
-                    <option key={dept.id} value={dept.name}>
+                    <option key={dept.id} value={dept.id}>
                       {dept.name}
                     </option>
                   ))}
@@ -126,34 +160,55 @@ export function UserModal({ open, onOpenChange, type, user, departments = [], on
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Job Title
+                  Employee ID
                 </label>
                 <input
-                  name="jobTitle"
+                  name="employeeId"
                   type="text"
-                  defaultValue={type === 'edit' ? user?.jobTitle : ''}
+                  defaultValue={type === 'edit' ? user?.employeeId : ''}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  placeholder="Enter job title"
-                  required
+                  placeholder="Enter employee ID"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Phone
+                </label>
+                <input
+                  name="phone"
+                  type="tel"
+                  defaultValue={type === 'edit' ? user?.phone : ''}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="Enter phone number"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Start Date
+                </label>
+                <input
+                  name="startDate"
+                  type="date"
+                  defaultValue={type === 'edit' ? user?.startDate?.split('T')[0] : ''}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
             </div>
 
             <div className="mt-4">
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Role
+                Address
               </label>
-              <select
-                name="userRole"
-                defaultValue={type === 'edit' ? user?.userRole : ''}
+              <textarea
+                name="address"
+                defaultValue={type === 'edit' ? user?.address : ''}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                required
-              >
-                <option value="">Select Role</option>
-                <option value="Employee">Employee</option>
-                <option value="HR">HR</option>
-                <option value="Super Admin">Super Admin</option>
-              </select>
+                placeholder="Enter address"
+                rows={2}
+              />
             </div>
 
             <div className="flex gap-3 mt-6">
