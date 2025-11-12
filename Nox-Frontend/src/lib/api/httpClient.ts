@@ -20,6 +20,11 @@ export class HttpClient {
       throw new Error(errorMessage);
     }
 
+    // Handle responses with no content (like DELETE operations)
+    if (response.status === 204 || response.headers.get('content-length') === '0') {
+      return {} as T;
+    }
+
     return response.json();
   }
 
