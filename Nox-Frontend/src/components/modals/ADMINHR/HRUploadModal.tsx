@@ -45,7 +45,7 @@ export default function UploadDocumentDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="w-[450px] h-[92vh] overflow-y-auto rounded-xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">
             Upload Document

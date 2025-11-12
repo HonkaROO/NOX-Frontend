@@ -1,4 +1,5 @@
 import AdminHeader from "@/components/layout/AdminLayout/AdminHeader";
+import HRnav from "@/components/layout/AdminLayout/HRnav";
 import { Button } from "@/components/ui/button";
 import {
   Ban,
@@ -10,9 +11,20 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import UploadDocumentDialog from "@/components/modals/ADMINHR/HRUploadModal";
+import HRDocumentViewModal from "@/components/modals/ADMINHR/HRDocumentViewModal";
+
+interface Document {
+  id: number;
+  name: string;
+  uploadedBy: string;
+  date: string;
+  size: string;
+  categories: string[];
+  status: string;
+}
 
 // Mock data
-const DOCUMENTS = [
+const INITIAL_DOCUMENTS = [
   {
     id: 1,
     name: "SSS Registration",
@@ -83,49 +95,43 @@ export default function HRDocumentManagement() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("All Documents");
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
+  const [documents, setDocuments] = useState<Document[]>(INITIAL_DOCUMENTS);
 
   // Filter documents based on active tab
   const filteredDocuments =
     activeTab === "All Documents"
-      ? DOCUMENTS
-      : DOCUMENTS.filter((doc) => doc.categories.includes(activeTab));
+      ? documents
+      : documents.filter((doc) => doc.categories.includes(activeTab));
+
+  const handleViewDocument = (document: Document) => {
+    setSelectedDocument(document);
+    setViewModalOpen(true);
+  };
+
+  const handleApproveDocument = (document: Document) => {
+    setDocuments(prev =>
+      prev.map(doc =>
+        doc.id === document.id ? { ...doc, status: "approved" } : doc
+      )
+    );
+    console.log("Approved document:", document.name);
+  };
+
+  const handleRejectDocument = (document: Document) => {
+    setDocuments(prev =>
+      prev.map(doc =>
+        doc.id === document.id ? { ...doc, status: "rejected" } : doc
+      )
+    );
+    console.log("Rejected document:", document.name);
+  };
 
   return (
     <AdminHeader>
       <div className="p-6">
-        <p className="text-sm text-gray-600 mb-1">Welcome back, John Doe</p>
-        <div className="flex gap-6 mb-6 border-b border-gray-200">
-          <button
-            onClick={() => navigate("/HROverview")}
-            className="pb-3 px-1 text-gray-600 hover:text-gray-800 font-medium"
-          >
-            Overview
-          </button>
-          <button
-            onClick={() => navigate("/HRDashboard")}
-            className="pb-3 px-1 text-gray-600 hover:text-gray-800 font-medium"
-          >
-            Dashboard
-          </button>
-          <button
-            onClick={() => navigate("/HREmployeeManagement")}
-            className="pb-3 px-1 text-gray-600 hover:text-gray-800 font-medium"
-          >
-            Employee Management
-          </button>
-          <button
-            onClick={() => navigate("/HRDocumentManagement")}
-            className="pb-3 px-1 text-indigo-600 border-b-2 border-indigo-600 font-medium"
-          >
-            Document Management
-          </button>
-          <button
-            onClick={() => navigate("/HRReports")}
-            className="pb-3 px-1 text-gray-600 hover:text-gray-800 font-medium"
-          >
-            Reports
-          </button>
-        </div>
+        <HRnav activePage="HRDocumentManagement" />
 
         <div className="flex justify-between">
           <div>
@@ -223,6 +229,8 @@ export default function HRDocumentManagement() {
                         ? "bg-green-100 text-green-600"
                         : doc.status === "pending"
                         ? "bg-pink-100 text-pink-600"
+                        : doc.status === "rejected"
+                        ? "bg-red-100 text-red-600"
                         : "bg-orange-100 text-orange-600"
                     }`}
                   >
@@ -238,7 +246,10 @@ export default function HRDocumentManagement() {
               <p className="text-xs text-gray-600 mb-1">Date: {doc.date}</p>
               <p className="text-xs text-gray-600 mb-3">Size: {doc.size}</p>
 
-              <button className="w-full bg-indigo-600 text-white text-sm py-2 rounded hover:bg-indigo-7000 mt-auto">
+              <button
+                onClick={() => handleViewDocument(doc)}
+                className="w-full bg-indigo-600 text-white text-sm py-2 rounded hover:bg-indigo-700 mt-auto"
+              >
                 View
               </button>
             </div>
@@ -248,6 +259,13 @@ export default function HRDocumentManagement() {
       <UploadDocumentDialog
         open={uploadDialogOpen}
         onOpenChange={setUploadDialogOpen}
+      />
+      <HRDocumentViewModal
+        open={viewModalOpen}
+        onOpenChange={setViewModalOpen}
+        document={selectedDocument}
+        onApprove={handleApproveDocument}
+        onReject={handleRejectDocument}
       />
     </AdminHeader>
   );

@@ -1,4 +1,5 @@
 import AdminHeader from "@/components/layout/AdminLayout/AdminHeader";
+import HRnav from "@/components/layout/AdminLayout/HRnav";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -61,39 +62,7 @@ export default function HREmployeeManagement() {
   return (
     <AdminHeader>
       <div className="p-6">
-        <p className="text-sm text-gray-600 mb-1">Welcome back, John Doe</p>
-        <div className="flex gap-6 mb-6 border-b border-gray-200">
-          <button
-            onClick={() => navigate("/HROverview")}
-            className="pb-3 px-1 text-gray-600 hover:text-gray-800 font-medium"
-          >
-            Overview
-          </button>
-          <button
-            onClick={() => navigate("/HRDashboard")}
-            className="pb-3 px-1 text-gray-600 hover:text-gray-800 font-medium"
-          >
-            Dashboard
-          </button>
-          <button
-            onClick={() => navigate("/HREmployeeManagement")}
-            className="pb-3 px-1 text-indigo-600 border-b-2 border-indigo-600 font-medium"
-          >
-            Employee Management
-          </button>
-          <button
-            onClick={() => navigate("/HRDocumentManagement")}
-            className="pb-3 px-1 text-gray-600 hover:text-gray-800 font-medium"
-          >
-            Document Management
-          </button>
-          <button
-            onClick={() => navigate("/HRReports")}
-            className="pb-3 px-1 text-gray-600 hover:text-gray-800 font-medium"
-          >
-            Reports
-          </button>
-        </div>
+        <HRnav activePage="HREmployeeManagement" />
 
         <h1 className="text-4xl font-semibold">Employee Management</h1>
         <p className="pt-2">Manage employee accounts and onboarding progress</p>
