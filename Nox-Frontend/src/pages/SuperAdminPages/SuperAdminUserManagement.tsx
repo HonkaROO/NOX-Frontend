@@ -278,12 +278,20 @@ export default function SuperAdminUserManagement() {
         userRole: data.userRole,
       };
       setUsers([...users, newUser]);
+
+      // In a real implementation, you would call the backend API here
+      console.log('Creating new user:', { ...newUser, password: data.password });
     } else if (userModalType === 'edit' && selectedUser) {
+      const updatedUser = { ...selectedUser, ...data, role: data.userRole };
       setUsers(users.map(user =>
-        user.id === selectedUser.id
-          ? { ...user, ...data, role: data.userRole }
-          : user
+        user.id === selectedUser.id ? updatedUser : user
       ));
+
+      // In a real implementation, you would call the backend API here
+      if (data.password) {
+        console.log('Updating user password for:', selectedUser.email);
+      }
+      console.log('Updating user:', updatedUser);
     }
   };
 

@@ -47,13 +47,19 @@ export function UserModal({ open, onOpenChange, type, user, departments = [], on
           <form onSubmit={(e) => {
             e.preventDefault();
             const formData = new FormData(e.target as HTMLFormElement);
-            const data = {
+            const password = formData.get('password') as string;
+            const data: any = {
               name: formData.get('name') as string,
               email: formData.get('email') as string,
               department: formData.get('department') as string,
               jobTitle: formData.get('jobTitle') as string,
               userRole: formData.get('userRole') as string,
             };
+
+            // Only include password if it's provided (for edit mode, password is optional)
+            if (password && password.trim() !== '') {
+              data.password = password;
+            }
             handleSave(data);
           }}>
             <div className="grid grid-cols-2 gap-4">
@@ -85,21 +91,19 @@ export function UserModal({ open, onOpenChange, type, user, departments = [], on
               </div>
             </div>
 
-            {/* Password Field - only visible in Add mode */}
-            {type === "add" && (
-              <div className="mt-4">
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Password
-                </label>
-                <input
-                  name="password"
-                  type="password"
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  placeholder="Enter password"
-                  required
-                />
-              </div>
-            )}
+            {/* Password Field - visible in both Add and Edit modes */}
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Password {type === 'edit' && '(leave blank sa as ISSS)'}
+              </label>
+              <input
+                name="password"
+                type="password"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder={type === 'add' ? 'Enter password' : 'Enter new password (optional)'}
+                required={type === 'add'}
+              />
+            </div>
 
 
 
