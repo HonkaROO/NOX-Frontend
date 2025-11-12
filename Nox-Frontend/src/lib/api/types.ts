@@ -46,6 +46,7 @@ export interface UpdateUserRequest {
   departmentId?: number;
   startDate?: string;
   employeeId?: string;
+  role?: string;
 }
 
 // Department types

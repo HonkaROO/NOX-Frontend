@@ -5,7 +5,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-export type UserModalType = 'add' | 'edit';
+export type UserModalType = "add" | "edit";
 
 interface UserModalProps {
   open: boolean;
@@ -16,15 +16,22 @@ interface UserModalProps {
   onSave?: (data: any) => void;
 }
 
-export function UserModal({ open, onOpenChange, type, user, departments = [], onSave }: UserModalProps) {
+export function UserModal({
+  open,
+  onOpenChange,
+  type,
+  user,
+  departments = [],
+  onSave,
+}: UserModalProps) {
   const getTitle = () => {
     switch (type) {
-      case 'add':
-        return 'Add New User';
-      case 'edit':
-        return 'Edit User';
+      case "add":
+        return "Add New User";
+      case "edit":
+        return "Edit User";
       default:
-        return '';
+        return "";
     }
   };
 
@@ -37,35 +44,37 @@ export function UserModal({ open, onOpenChange, type, user, departments = [], on
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-
       {/* Resizing the modal size is this DialogContent*/}
-      <DialogContent className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl mx-auto p-6 rounded-xl"> 
+      <DialogContent className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl mx-auto p-6 rounded-xl">
         <DialogHeader>
           <DialogTitle>{getTitle()}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
-          <form onSubmit={(e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target as HTMLFormElement);
-            const data = {
-              firstName: formData.get('firstName') as string,
-              lastName: formData.get('lastName') as string,
-              userName: formData.get('userName') as string,
-              email: formData.get('email') as string,
-              password: formData.get('password') as string,
-              departmentId: formData.get('departmentId') as string,
-              phone: formData.get('phone') as string,
-              address: formData.get('address') as string,
-              employeeId: formData.get('employeeId') as string,
-              startDate: formData.get('startDate') as string,
-            };
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.target as HTMLFormElement);
+              const data = {
+                firstName: formData.get("firstName") as string,
+                lastName: formData.get("lastName") as string,
+                userName: formData.get("userName") as string,
+                email: formData.get("email") as string,
+                password: formData.get("password") as string,
+                departmentId: formData.get("departmentId") as string,
+                role: formData.get("role") as string,
+                phone: formData.get("phone") as string,
+                address: formData.get("address") as string,
+                employeeId: formData.get("employeeId") as string,
+                startDate: formData.get("startDate") as string,
+              };
 
-            // Only include password if it's provided (for edit mode, password is optional)
-            if (data.password && data.password.trim() !== '') {
-              data.password = data.password;
-            }
-            handleSave(data);
-          }}>
+              // Only include password if it's provided (for edit mode, password is optional)
+              if (data.password && data.password.trim() !== "") {
+                data.password = data.password;
+              }
+              handleSave(data);
+            }}
+          >
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
@@ -74,7 +83,7 @@ export function UserModal({ open, onOpenChange, type, user, departments = [], on
                 <input
                   name="firstName"
                   type="text"
-                  defaultValue={type === 'edit' ? user?.firstName : ''}
+                  defaultValue={type === "edit" ? user?.firstName : ""}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   placeholder="Enter first name"
                   required
@@ -87,28 +96,26 @@ export function UserModal({ open, onOpenChange, type, user, departments = [], on
                 <input
                   name="lastName"
                   type="text"
-                  defaultValue={type === 'edit' ? user?.lastName : ''}
+                  defaultValue={type === "edit" ? user?.lastName : ""}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   placeholder="Enter last name"
                   required
                 />
               </div>
-              {type === 'edit' && (
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Username
-                  </label>
-                  <input
-                    name="userName"
-                    type="text"
-                    defaultValue={user?.userName}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="Enter username"
-                    required
-                    disabled
-                  />
-                </div>
-              )}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Username
+                </label>
+                <input
+                  name="userName"
+                  type="text"
+                  defaultValue={type === "edit" ? user?.userName : ""}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="Enter username"
+                  required={type === "add"}
+                  disabled={type === "edit"}
+                />
+              </div>
             </div>
 
             <div className="mt-4">
@@ -118,31 +125,31 @@ export function UserModal({ open, onOpenChange, type, user, departments = [], on
               <input
                 name="email"
                 type="email"
-                defaultValue={type === 'edit' ? user?.email : ''}
+                defaultValue={type === "edit" ? user?.email : ""}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 placeholder="Enter email"
                 required
-                disabled={type === 'edit'}
+                disabled={type === "edit"}
               />
             </div>
 
             {/* Password Field - visible in both Add and Edit modes */}
             <div className="mt-4">
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Password {type === 'edit' && '(leave blank sa as ISSS)'}
+                Password {type === "edit" && "(leave blank sa as ISSS)"}
               </label>
               <input
                 name="password"
                 type="password"
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder={type === 'add' ? 'Enter password' : 'Enter new password (optional)'}
-                required={type === 'add'}
+                placeholder={
+                  type === "add"
+                    ? "Enter password"
+                    : "Enter new password (optional)"
+                }
+                required={type === "add"}
               />
             </div>
-
-
-
-
 
             <div className="grid grid-cols-2 gap-4 mt-4">
               <div>
@@ -151,7 +158,7 @@ export function UserModal({ open, onOpenChange, type, user, departments = [], on
                 </label>
                 <select
                   name="departmentId"
-                  defaultValue={type === 'edit' ? user?.departmentId : ''}
+                  defaultValue={type === "edit" ? user?.departmentId : ""}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   required
                 >
@@ -163,6 +170,26 @@ export function UserModal({ open, onOpenChange, type, user, departments = [], on
                   ))}
                 </select>
               </div>
+
+              {/* ADD THIS ROLE FIELD */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Role
+                </label>
+                <select
+                  name="role"
+                  defaultValue={
+                    type === "edit" ? user?.roles?.[0] || "User" : "User"
+                  }
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  required
+                >
+                  <option value="User">User</option>
+                  <option value="Admin">Admin</option>
+                  <option value="SuperAdmin">SuperAdmin</option>
+                </select>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
                   Employee ID
@@ -170,7 +197,7 @@ export function UserModal({ open, onOpenChange, type, user, departments = [], on
                 <input
                   name="employeeId"
                   type="text"
-                  defaultValue={type === 'edit' ? user?.employeeId : ''}
+                  defaultValue={type === "edit" ? user?.employeeId : ""}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   placeholder="Enter employee ID"
                 />
@@ -185,7 +212,7 @@ export function UserModal({ open, onOpenChange, type, user, departments = [], on
                 <input
                   name="phone"
                   type="tel"
-                  defaultValue={type === 'edit' ? user?.phone : ''}
+                  defaultValue={type === "edit" ? user?.phone : ""}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   placeholder="Enter phone number"
                 />
@@ -197,7 +224,9 @@ export function UserModal({ open, onOpenChange, type, user, departments = [], on
                 <input
                   name="startDate"
                   type="date"
-                  defaultValue={type === 'edit' ? user?.startDate?.split('T')[0] : ''}
+                  defaultValue={
+                    type === "edit" ? user?.startDate?.split("T")[0] : ""
+                  }
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
@@ -209,7 +238,7 @@ export function UserModal({ open, onOpenChange, type, user, departments = [], on
               </label>
               <textarea
                 name="address"
-                defaultValue={type === 'edit' ? user?.address : ''}
+                defaultValue={type === "edit" ? user?.address : ""}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 placeholder="Enter address"
                 rows={2}
@@ -221,7 +250,7 @@ export function UserModal({ open, onOpenChange, type, user, departments = [], on
                 type="submit"
                 className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
               >
-                {type === 'add' ? 'Add' : 'Update'} User
+                {type === "add" ? "Add" : "Update"} User
               </button>
               <button
                 type="button"

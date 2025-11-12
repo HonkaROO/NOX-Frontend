@@ -8,7 +8,7 @@ export function useUserManagement() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [userModalOpen, setUserModalOpen] = useState(false);
-  const [userModalType, setUserModalType] = useState<UserModalType>('add');
+  const [userModalType, setUserModalType] = useState<UserModalType>("add");
   const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
 
   // Fetch users and departments on mount
@@ -21,14 +21,14 @@ export function useUserManagement() {
       setLoading(true);
       const [usersData, departmentsData] = await Promise.all([
         apiClient.getAllUsers(),
-        apiClient.getAllDepartments()
+        apiClient.getAllDepartments(),
       ]);
       setUsers(usersData);
       setDepartments(departmentsData);
       setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch data');
-      console.error('Error fetching data:', err);
+      setError(err instanceof Error ? err.message : "Failed to fetch data");
+      console.error("Error fetching data:", err);
     } finally {
       setLoading(false);
     }
@@ -42,7 +42,7 @@ export function useUserManagement() {
 
   const handleUserModalSave = async (data: any) => {
     try {
-      if (userModalType === 'add') {
+      if (userModalType === "add") {
         const createRequest = {
           userName: data.email,
           email: data.email,
@@ -54,13 +54,12 @@ export function useUserManagement() {
           departmentId: parseInt(data.departmentId),
           startDate: data.startDate || undefined,
           employeeId: data.employeeId || undefined,
-          role: 'User',
+          role: data.role || undefined,
         };
 
         const newUser = await apiClient.createUser(createRequest);
         setUsers([...users, newUser]);
-
-      } else if (userModalType === 'edit' && selectedUser) {
+      } else if (userModalType === "edit" && selectedUser) {
         const updateRequest = {
           firstName: data.firstName,
           lastName: data.lastName,
@@ -69,26 +68,43 @@ export function useUserManagement() {
           departmentId: parseInt(data.departmentId),
           startDate: data.startDate || undefined,
           employeeId: data.employeeId || undefined,
+          role: data.role || undefined,
         };
 
-        const updatedUser = await apiClient.updateUser(selectedUser.id, updateRequest);
-        setUsers(users.map(user => user.id === selectedUser.id ? updatedUser : user));
+        const updatedUser = await apiClient.updateUser(
+          selectedUser.id,
+          updateRequest
+        );
+
+        // If the API response doesn't include roles, manually add them
+        if (
+          data.role &&
+          (!updatedUser.roles || !updatedUser.roles.includes(data.role))
+        ) {
+          updatedUser.roles = [data.role];
+        }
+
+        setUsers(
+          users.map((user) =>
+            user.id === selectedUser.id ? updatedUser : user
+          )
+        );
       }
 
       setUserModalOpen(false);
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to save user');
-      console.error('Error saving user:', err);
+      alert(err instanceof Error ? err.message : "Failed to save user");
+      console.error("Error saving user:", err);
     }
   };
 
   const handleDeleteUser = async (userId: string) => {
     try {
       await apiClient.deleteUser(userId);
-      setUsers(users.filter(user => user.id !== userId));
+      setUsers(users.filter((user) => user.id !== userId));
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to delete user');
-      console.error('Error deleting user:', err);
+      alert(err instanceof Error ? err.message : "Failed to delete user");
+      console.error("Error deleting user:", err);
     }
   };
 
