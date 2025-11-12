@@ -12,10 +12,11 @@ interface DepartmentModalProps {
   onOpenChange: (open: boolean) => void;
   type: DepartmentModalType;
   department?: any;
+  users?: any[];
   onSave?: (data: any) => void;
 }
 
-export function DepartmentModal({ open, onOpenChange, type, department, onSave }: DepartmentModalProps) {
+export function DepartmentModal({ open, onOpenChange, type, department, users = [], onSave }: DepartmentModalProps) {
   const getTitle = () => {
     switch (type) {
       case 'add':
@@ -46,26 +47,32 @@ export function DepartmentModal({ open, onOpenChange, type, department, onSave }
         <div className="space-y-4">
           {type === 'view-users' ? (
             <div className="space-y-3 max-h-96 overflow-y-auto">
-              {Array.from({ length: department?.users || 0 }, (_, i) => (
-                <div key={i} className="flex items-center gap-4 p-3 rounded-lg border border-slate-200">
-                  <div className="w-10 h-10 bg-slate-300 rounded-full flex items-center justify-center">
-                    <span className="text-sm font-medium text-slate-600">
-                      {String.fromCharCode(65 + (i % 26))}
-                    </span>
-                  </div>
-                  <div className="flex-1">
-                    <div className="text-sm font-medium text-slate-800">
-                      User {i + 1}
+              {users.length > 0 ? (
+                users.map((user) => (
+                  <div key={user.id} className="flex items-center gap-4 p-3 rounded-lg border border-slate-200">
+                    <div className="w-10 h-10 bg-slate-300 rounded-full flex items-center justify-center">
+                      <span className="text-sm font-medium text-slate-600">
+                        {user.firstName?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase() || 'U'}
+                      </span>
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-sm font-medium text-slate-800">
+                        {user.firstName} {user.lastName}
+                      </div>
+                      <div className="text-xs text-slate-500">
+                        {user.email}
+                      </div>
                     </div>
                     <div className="text-xs text-slate-500">
-                      user{i + 1}@company.com
+                      {user.isActive ? 'Active' : 'Inactive'}
                     </div>
                   </div>
-                  <div className="text-xs text-slate-500">
-                    Active
-                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8 text-slate-500">
+                  No users found in this department.
                 </div>
-              ))}
+              )}
             </div>
           ) : (
             <form onSubmit={(e) => {

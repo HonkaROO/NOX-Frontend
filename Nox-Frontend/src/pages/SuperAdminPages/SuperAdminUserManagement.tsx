@@ -20,6 +20,9 @@ export default function SuperAdminUserManagement() {
     handleDeleteUser,
   } = useUserManagement();
 
+  const activeUsers = users.filter(user => user.isActive);
+  const activeDepartments = departments.filter(dept => dept.isActive);
+
   const stats = [
     {
       icon: (
@@ -30,7 +33,7 @@ export default function SuperAdminUserManagement() {
         />
       ),
       label: "Total Employees",
-      value: users.length.toString(),
+      value: activeUsers.length.toString(),
     },
     {
       icon: (
@@ -41,7 +44,7 @@ export default function SuperAdminUserManagement() {
         />
       ),
       label: "Departments",
-      value: departments.length.toString(),
+      value: activeDepartments.length.toString(),
     },
   ];
 
@@ -82,7 +85,7 @@ export default function SuperAdminUserManagement() {
         onOpenChange={setUserModalOpen}
         type={userModalType}
         user={selectedUser}
-        departments={departments}
+        departments={activeDepartments}
         onSave={handleUserModalSave}
       />
     </SuperAdminHeader>

@@ -6,12 +6,13 @@ import { SuperAdminNavigation } from "@/components/modals/SuperAdminModals/Super
 import SuperAdminHeader from "@/components/layout/SuperAdminLayout/SuperAdminHeader";
 import ChatbotAssistant from "@/components/chatbotkilid/ChatbotAssistant";
 import { useNavigate } from "react-router-dom";
-import { apiClient, type DepartmentDto } from "@/lib/api";
+import { apiClient, type DepartmentDto, type UserDto } from "@/lib/api";
 
 
 export default function Index() {
     const navigate = useNavigate();
     const [departments, setDepartments] = useState<DepartmentDto[]>([]);
+    const [users, setUsers] = useState<UserDto[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -20,27 +21,32 @@ export default function Index() {
     const [selectedDept, setSelectedDept] = useState<DepartmentDto | null>(null);
 
     useEffect(() => {
-      const fetchDepartments = async () => {
+      const fetchData = async () => {
         try {
           setLoading(true);
           setError(null);
-          const data = await apiClient.getAllDepartments();
+          const [departmentsData, usersData] = await Promise.all([
+            apiClient.getAllDepartments(),
+            apiClient.getAllUsers()
+          ]);
           // Filter to show only active departments and sort by creation date (oldest first)
-          const activeDepartments = data
+          const activeDepartments = departmentsData
             .filter(dept => dept.isActive)
             .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
           setDepartments(activeDepartments);
+          setUsers(usersData);
         } catch (err) {
-          setError(err instanceof Error ? err.message : 'Failed to fetch departments');
+          setError(err instanceof Error ? err.message : 'Failed to fetch data');
         } finally {
           setLoading(false);
         }
       };
 
-      fetchDepartments();
+      fetchData();
     }, []);
 
-  const totalEmployees = departments.reduce((sum, dept) => sum + dept.userCount, 0);
+  const activeUsers = users.filter(user => user.isActive);
+  const totalEmployees = activeUsers.length;
   const totalDepartments = departments.length;
 
   const stats = [
@@ -78,6 +84,14 @@ export default function Index() {
     setModalOpen(true);
   };
 
+  const getDepartmentUsers = (departmentId: number) => {
+    return users.filter(user => user.departmentId === departmentId && user.isActive);
+  };
+
+  const getActiveUserCount = (departmentId: number) => {
+    return users.filter(user => user.departmentId === departmentId && user.isActive).length;
+  };
+
   const handleModalSave = async (data: any) => {
     try {
       if (modalType === 'add') {
@@ -104,12 +118,16 @@ export default function Index() {
     if (window.confirm('Are you sure you want to delete this department?')) {
       try {
         await apiClient.deleteDepartment(id);
-        // Refresh the departments list to get updated data from backend
-        const data = await apiClient.getAllDepartments();
-        const activeDepartments = data
+        // Refresh the data to get updated data from backend
+        const [departmentsData, usersData] = await Promise.all([
+          apiClient.getAllDepartments(),
+          apiClient.getAllUsers()
+        ]);
+        const activeDepartments = departmentsData
           .filter(dept => dept.isActive)
           .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
         setDepartments(activeDepartments);
+        setUsers(usersData);
         setError(null); // Clear any previous errors
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to delete department');
@@ -176,7 +194,7 @@ export default function Index() {
                       {dept.name}
                     </div>
                     <div className="text-sm text-slate-600">
-                      {dept.userCount} users
+                      {getActiveUserCount(dept.id)} users
                     </div>
                     {dept.description && (
                       <div className="text-xs text-slate-500 mt-1">
@@ -223,6 +241,7 @@ export default function Index() {
           onOpenChange={setModalOpen}
           type={modalType}
           department={selectedDept}
+          users={modalType === 'view-users' && selectedDept ? getDepartmentUsers(selectedDept.id) : []}
           onSave={handleModalSave}
         />
       </main>
