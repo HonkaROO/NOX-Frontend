@@ -44,7 +44,7 @@ export function useUserManagement() {
     try {
       if (userModalType === 'add') {
         const createRequest = {
-          userName: data.userName || data.email,
+          userName: data.email,
           email: data.email,
           password: data.password,
           firstName: data.firstName,

@@ -61,8 +61,8 @@ export function UserModal({ open, onOpenChange, type, user, departments = [], on
             };
 
             // Only include password if it's provided (for edit mode, password is optional)
-            if (password && password.trim() !== '') {
-              data.password = password;
+            if (data.password && data.password.trim() !== '') {
+              data.password = data.password;
             }
             handleSave(data);
           }}>
@@ -93,20 +93,22 @@ export function UserModal({ open, onOpenChange, type, user, departments = [], on
                   required
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Username
-                </label>
-                <input
-                  name="userName"
-                  type="text"
-                  defaultValue={type === 'edit' ? user?.userName : ''}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  placeholder="Enter username"
-                  required={type === 'add'}
-                  disabled={type === 'edit'}
-                />
-              </div>
+              {type === 'edit' && (
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Username
+                  </label>
+                  <input
+                    name="userName"
+                    type="text"
+                    defaultValue={user?.userName}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    placeholder="Enter username"
+                    required
+                    disabled
+                  />
+                </div>
+              )}
             </div>
 
             <div className="mt-4">
