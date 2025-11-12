@@ -1,29 +1,29 @@
-import { useRef, useState } from "react";
-import { Mic, Send } from "lucide-react";
+import { useRef, useState, useEffect } from "react";
+import { Mic, Send, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import Linkify from "react-linkify";
 import HeaderLayout from "@/components/layout/HeaderLayout";
+import { useChatbot } from "@/hooks/useChatbot";
 
 export default function AIAssistant() {
   const navigate = useNavigate();
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      type: "bot",
-      name: "NOXY",
-      status: "Online",
-      greeting: "Hello! I'm Noxy. What can I do for you today?",
-      response: `I can help you with:
-Government requirement (SSS,PhilHealth,Pag-IBIG)
-Department-specific orientation
-Company policies and procedures`,
-    },
-  ]);
   const [inputValue, setInputValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const handleSend = () => {
-    if (inputValue.trim()) {
-      // User message would be added here
+  // Replace "John Doe" with actual username from auth context/state
+  const username = "John Doe"; // TODO: Get from auth context
+
+  const { messages, isLoading, error, sendMessage } = useChatbot(username);
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const handleSend = async () => {
+    if (inputValue.trim() && !isLoading) {
+      await sendMessage(inputValue);
       setInputValue("");
       if (inputRef.current) {
         inputRef.current.focus();
@@ -37,8 +37,8 @@ Company policies and procedures`,
         {/* Header */}
 
         {/* Main Content */}
-        <div className="px-6 py-6">
-          <p className="text-sm text-gray-600 mb-1">Welcome back, John Doe</p>
+        <div className="px-6 py-6 flex flex-col h-[80vh]">
+          <p className="text-sm text-gray-600 mb-1">Welcome back, {username}</p>
           {/* Navigation Tabs */}
           <div className="flex gap-6 mb-6 border-b border-gray-200">
             <button
@@ -59,53 +59,96 @@ Company policies and procedures`,
           </div>
 
           {/* Messages Container */}
-          <div className="flex-1 overflow-y-auto p-6">
-            {messages.map((message) => (
-              <div key={message.id} className="space-y-4">
-                {/* Bot Header */}
-                <div className="bg-white rounded p-4 w-full max-w-3xl">
-                  <div className="flex items-center gap-3">
-                    <img
-                      src="RealNoxyIcon.png"
-                      alt="Bot"
-                      className="w-9 h-9 rounded-full"
-                    />
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-xs font-semibold text-black">
-                          {message.name}
-                        </h3>
-                        <div className="w-1.5 h-1.5 bg-[#46CA09] rounded-full"></div>
+          <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            {messages.map((message, index) => (
+              <div key={message.id || index}>
+                {message.sender === 'bot' ? (
+                  <>
+                    {/* Bot Header - Only show once at the top */}
+                    {index === 0 && (
+                      <div className="bg-white rounded p-4 w-full max-w-3xl mb-4">
+                        <div className="flex items-center gap-3">
+                          <img
+                            src="RealNoxyIcon.png"
+                            alt="Bot"
+                            className="w-9 h-9 rounded-full"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <h3 className="text-xs font-semibold text-black">
+                                NOXY
+                              </h3>
+                              <div className="w-1.5 h-1.5 bg-[#46CA09] rounded-full"></div>
+                            </div>
+                            <p className="text-xs text-gray-400 mt-0.5">
+                              Online
+                            </p>
+                          </div>
+                        </div>
                       </div>
-                      <p className="text-xs text-gray-400 mt-0.5">
-                        {message.status}
+                    )}
+
+                    {/* Bot Message */}
+                    <div className="flex gap-3 items-start">
+                      <img
+                        src="RealNoxyIcon.png"
+                        alt="Message"
+                        className="w-6 h-6 mt-1"
+                      />
+                      <div className="bg-[#AACAFF] rounded px-3 py-2 max-w-2xl">
+                        <p className="text-xs text-black font-light leading-5 whitespace-pre-line">
+                          <Linkify
+                            componentDecorator={(decoratedHref, decoratedText, key) => (
+                              <a
+                                href={decoratedHref}
+                                key={key}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-700 underline hover:text-blue-900"
+                              >
+                                {decoratedText}
+                              </a>
+                            )}
+                          >
+                            {message.message}
+                          </Linkify>
+                        </p>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  /* User Message */
+                  <div className="flex gap-3 items-start justify-end">
+                    <div className="bg-indigo-600 rounded px-3 py-2 max-w-2xl">
+                      <p className="text-xs text-white font-light leading-5">
+                        {message.message}
                       </p>
                     </div>
                   </div>
-                </div>
-
-                {/* Greeting Message */}
-                <div className="flex gap-3 items-start">
-                  <img
-                    src="RealNoxyIcon.png"
-                    alt="Message"
-                    className="w-6 h-6 mt-1"
-                  />
-                  <div className="bg-[#AACAFF] rounded px-3 py-2 max-w-xs">
-                    <p className="text-xs text-black font-light leading-5">
-                      {message.greeting}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Response Message */}
-                <div className="bg-[#AACAFF] rounded p-4 w-full max-w-2xl">
-                  <p className="text-xs text-black font-light leading-5 whitespace-pre-line">
-                    {message.response}
-                  </p>
-                </div>
+                )}
               </div>
             ))}
+
+            {/* Loading Indicator */}
+            {isLoading && (
+              <div className="flex gap-3 items-start">
+                <img
+                  src="RealNoxyIcon.png"
+                  alt="Message"
+                  className="w-6 h-6 mt-1"
+                />
+                <div className="bg-[#AACAFF] rounded px-3 py-2">
+                  <Loader2 className="w-4 h-4 animate-spin text-gray-600" />
+                </div>
+              </div>
+            )}
+
+            {/* Error Message */}
+            {error && (
+              <div className="text-red-500 text-xs text-center">{error}</div>
+            )}
+
+            <div ref={messagesEndRef} />
           </div>
 
           {/* Input Area */}
@@ -117,15 +160,20 @@ Company policies and procedures`,
                 placeholder="Need help? Ask Noxy...."
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleSend()}
-                className="flex-1 bg-transparent text-xs text-gray-400 placeholder-gray-400 outline-none"
+                onKeyPress={(e) => e.key === "Enter" && !isLoading && handleSend()}
+                disabled={isLoading}
+                className="flex-1 bg-transparent text-xs text-gray-700 placeholder-gray-400 outline-none disabled:opacity-50"
               />
-              <button className="p-2 hover:bg-white hover:bg-opacity-30 rounded transition-colors">
+              <button
+                className="p-2 hover:bg-white hover:bg-opacity-30 rounded transition-colors"
+                disabled={isLoading}
+              >
                 <Mic size={18} className="text-gray-500" />
               </button>
               <button
                 onClick={handleSend}
-                className="p-2 hover:bg-white hover:bg-opacity-30 rounded transition-colors"
+                disabled={isLoading || !inputValue.trim()}
+                className="p-2 hover:bg-white hover:bg-opacity-30 rounded transition-colors disabled:opacity-50"
               >
                 <Send size={18} className="text-[#2E15D0]" />
               </button>
