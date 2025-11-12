@@ -28,7 +28,7 @@ export function UserManagementContent({
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<
     "all" | "active" | "inactive"
-  >("all");
+  >("active");
 
   const filteredUsers = users.filter((user) => {
     const fullName =
