@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react";
-import { Mic, Send, Loader2 } from "lucide-react";
+import { Mic, Send } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Linkify from "react-linkify";
 import HeaderLayout from "@/components/layout/HeaderLayout";
@@ -177,7 +177,11 @@ export default function AIAssistant() {
                   className="w-6 h-6 mt-1"
                 />
                 <div className="bg-[#AACAFF] rounded px-3 py-2">
-                  <Loader2 className="w-4 h-4 animate-spin text-gray-600" />
+                  <div className="flex gap-1">
+                    <div className="w-2 h-2 bg-gray-600 rounded-full animate-pulse"></div>
+                    <div className="w-2 h-2 bg-gray-600 rounded-full animate-pulse" style={{ animationDelay: '200ms' }}></div>
+                    <div className="w-2 h-2 bg-gray-600 rounded-full animate-pulse" style={{ animationDelay: '400ms' }}></div>
+                  </div>
                 </div>
               </div>
             )}
