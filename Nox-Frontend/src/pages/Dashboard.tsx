@@ -109,6 +109,8 @@ export default function Dashboard() {
           </div>
         </div>
 
+
+        {/* The Main Content */}
         {/* Quick Actions */}
         <div>
           <h2 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>

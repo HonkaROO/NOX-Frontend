@@ -1,127 +1,125 @@
+import { useState } from "react";
 import AdminHeader from "@/components/layout/AdminLayout/AdminHeader";
 import { useNavigate } from "react-router-dom";
+import { FolderModal, type FolderModalType } from "@/components/modals/ADMINHR/FolderModal";
+import HRnav from "@/components/layout/AdminLayout/HRnav";
 
 export default function HROverview() {
   const navigate = useNavigate();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalType, setModalType] = useState<FolderModalType>('add');
+  const [selectedFolder, setSelectedFolder] = useState<any>(null);
+  const [folders, setFolders] = useState<any[]>([]);
+
+  const handleModalOpen = (type: FolderModalType, folder?: any) => {
+    setModalType(type);
+    setSelectedFolder(folder || null);
+    setModalOpen(true);
+  };
+
+  const handleModalSave = (data: any) => {
+    if (modalType === 'add') {
+      const newFolder = {
+        id: Date.now(), // Simple ID generation
+        name: data.name,
+        description: data.description,
+        createdAt: new Date().toISOString(),
+      };
+      setFolders([...folders, newFolder]);
+    } else if (modalType === 'edit' && selectedFolder) {
+      setFolders(folders.map(folder =>
+        folder.id === selectedFolder.id
+          ? { ...folder, name: data.name, description: data.description }
+          : folder
+      ));
+    }
+  };
 
   return (
-    <AdminHeader>
-      <div>
-        {/* Header */}
+     
+<AdminHeader>
+      <div className="p-6">
+        <HRnav activePage="HROverview" />
 
-        {/* Main Content */}
-        <div className="px-6 py-6">
-          <p className="text-sm text-gray-600 mb-1">Welcome back, John Doe</p>
-          {/* Navigation Tabs */}
-          <div className="flex gap-6 mb-6 border-b border-gray-200">
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-4xl font-semibold">Folder Cards</h1>
+            <p className="pt-2">Shows uploaded Folder Cards and Tasks</p>
+          </div>
+          {/* Add Folder Button */}
+          <div className="mb-6">
             <button
-              onClick={() => navigate("/HROverview")}
-              className="pb-3 px-1 text-indigo-600 border-b-2 border-indigo-600 font-medium"
+              onClick={() => handleModalOpen('add')}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
             >
-              Overview
-            </button>
-            <button
-              onClick={() => navigate("/HRDashboard")}
-              className="pb-3 px-1 text-gray-600 hover:text-gray-800 font-medium"
-            >
-              Dashboard
-            </button>
-            <button
-              onClick={() => navigate("/HREmployeeManagement")}
-              className="pb-3 px-1 text-gray-600 hover:text-gray-800 font-medium"
-            >
-              Employee Management
-            </button>
-            <button
-              onClick={() => navigate("/HRDocumentManagement")}
-              className="pb-3 px-1 text-gray-600 hover:text-gray-800 font-medium"
-            >
-              Document Management
-            </button>
-            <button
-              onClick={() => navigate("/HRReports")}
-              className="pb-3 px-1 text-gray-600 hover:text-gray-800 font-medium"
-            >
-              Reports
+              + Add Folder
             </button>
           </div>
-
-          {/* HR Overview Content */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-              <div className="flex flex-col items-center text-center">
-                <div className="w-16 h-16 mb-4 flex items-center justify-center">
-                  <img
-                    src="https://api.builder.io/api/v1/image/assets/TEMP/daa307821b94f2bc9182c703f75ef8a0689c162b?width=204"
-                    alt="Employee Dashboard"
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Employee Dashboard
-                </h3>
-                <p className="text-sm text-gray-600">
-                  View all employees and their document compliance status
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-              <div className="flex flex-col items-center text-center">
-                <div className="w-8 h-8 mb-4 flex items-center justify-center">
-                  <img
-                    src="https://api.builder.io/api/v1/image/assets/TEMP/4a3195519fcbc68d4588725a7edd52e8e8e2e76a?width=88"
-                    alt="Employee Management"
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Employee Management
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Add, edit, or deactivate employee accounts
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-              <div className="flex flex-col items-center text-center">
-                <div className="w-8 h-8 mb-4 flex items-center justify-center">
-                  <img
-                    src="https://api.builder.io/api/v1/image/assets/TEMP/e454ec26e29211124b2e5db1c7395548c5c5e089?width=88"
-                    alt="Document Management"
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Document Management
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Assign, upload, review, approve/reject or archive employee
-                  documents
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-              <div className="flex flex-col items-center text-center">
-                <div className="w-8 h-8 mb-4 flex items-center justify-center">
-                  <img
-                    src="https://api.builder.io/api/v1/image/assets/TEMP/087d7c969d6f7286bce2afb6c5592e9072ad56ca?width=82"
-                    alt="Reports"
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Reports
-                </h3>
-                <p className="text-sm text-gray-600">
-                  View the status of employee documents and onboarding progress
-                </p>
-              </div>
-            </div>
-          </div>
+           
         </div>
+        {/* Contents Here */}
+
+         
+
+        {/* Folder Cards */}
+        <div>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Folder Cards</h2>
+
+          {folders.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <p>No folders created yet. Click "Add Folder" to create your first folder.</p>
+            </div>
+          ) : (
+            /* Grid of Folder Cards */
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {folders.map((folder) => (
+                <div
+                  key={folder.id}
+                  className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow cursor-pointer"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+                      <span className="text-indigo-600 font-semibold text-lg">📁</span>
+                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // TODO: Add delete functionality
+                      }}
+                      className="text-gray-400 hover:text-red-600"
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    {folder.name}
+                  </h3>
+                  {folder.description && (
+                    <p className="text-sm text-gray-600 mb-4">
+                      {folder.description}
+                    </p>
+                  )}
+                  <div className="text-xs text-gray-500">
+                    Created: {new Date(folder.createdAt).toLocaleDateString()}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+           
+
+         
+
+        {/* Folder Modal */}
+        <FolderModal
+          open={modalOpen}
+          onOpenChange={setModalOpen}
+          type={modalType}
+          folder={selectedFolder}
+          onSave={handleModalSave}
+        />
 
         {/* AI Assistant Button (Bottom Right) */}
         <button className="fixed bottom-6 right-6 w-16 h-16 bg-linear-to-br from-blue-700 to-indigo-900 hover:shadow-[0_0_15px_rgba(59,130,246,0.6)] rounded-full shadow-lg transition-all flex flex-col items-center justify-center text-white">

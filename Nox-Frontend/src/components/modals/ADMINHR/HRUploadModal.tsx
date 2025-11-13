@@ -34,13 +34,28 @@ export default function UploadDocumentDialog({
     type: "",
     description: "",
     dueDate: "",
-    steps: "",
+    steps: [] as string[],
   });
 
   const handleSubmit = () => {
     console.log("Uploading document:", formData);
     // Handle upload logic here
     onOpenChange(false);
+  };
+
+  const addStep = () => {
+    setFormData({ ...formData, steps: [...formData.steps, ""] });
+  };
+
+  const updateStep = (index: number, value: string) => {
+    const newSteps = [...formData.steps];
+    newSteps[index] = value;
+    setFormData({ ...formData, steps: newSteps });
+  };
+
+  const removeStep = (index: number) => {
+    const newSteps = formData.steps.filter((_, i) => i !== index);
+    setFormData({ ...formData, steps: newSteps });
   };
 
   return (
@@ -129,33 +144,47 @@ export default function UploadDocumentDialog({
 
           {/* Steps To Complete */}
           <div>
-            <Label htmlFor="steps" className="text-sm">
-              Steps To Complete
-            </Label>
-            <Textarea
-              id="steps"
-              value={formData.steps}
-              onChange={(e) =>
-                setFormData({ ...formData, steps: e.target.value })
-              }
-              className="mt-1 min-h-[120px]"
-            />
-          </div>
-
-          {/* Required Documents */}
-          <div>
             <div className="flex items-center justify-between mb-2">
-              <Label className="text-sm">Required Documents</Label>
-              <Button size="sm" variant="default" className="h-7 text-xs">
-                + Add
+              <Label className="text-sm">Steps To Complete</Label>
+              <Button
+                size="sm"
+                variant="default"
+                className="h-7 text-xs"
+                onClick={addStep}
+              >
+                + Add Step
               </Button>
+            </div>
+            <div className="space-y-2">
+              {formData.steps.map((step, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <Input
+                    value={step}
+                    onChange={(e) => updateStep(index, e.target.value)}
+                    placeholder={`Step ${index + 1}`}
+                    className="flex-1"
+                  />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+                    onClick={() => removeStep(index)}
+                  >
+                    ×
+                  </Button>
+                </div>
+              ))}
             </div>
           </div>
 
+
           {/* Upload Area */}
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer">
-            <Upload className="mx-auto mb-2 text-gray-400" size={32} />
-            <p className="text-sm text-gray-600">Upload</p>
+          <div>
+            <Label className="text-sm">Document Upload</Label>
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer mt-1">
+              <Upload className="mx-auto mb-2 text-gray-400" size={32} />
+              <p className="text-sm text-gray-600">Upload</p>
+            </div>
           </div>
 
           {/* Action Buttons */}
