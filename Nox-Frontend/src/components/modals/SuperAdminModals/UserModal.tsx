@@ -45,7 +45,7 @@ export function UserModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       {/* Resizing the modal size is this DialogContent*/}
-      <DialogContent className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl mx-auto p-6 rounded-xl">
+      <DialogContent className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl mx-auto p-6 rounded-xl max-h-[70vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{getTitle()}</DialogTitle>
         </DialogHeader>
