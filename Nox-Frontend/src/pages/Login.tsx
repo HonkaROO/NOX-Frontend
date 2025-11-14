@@ -14,6 +14,7 @@ export default function Login() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setIsLoading(true);
 
     try {
       const userData = await login(email, password);
@@ -28,6 +29,8 @@ export default function Login() {
       }
     } catch (err) {
       setError("Invalid email or password");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -128,8 +131,16 @@ export default function Login() {
                   Forgot password?
                 </a>
               </div>
-              
-            </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {isLoading ? "Signing in..." : "Sign in"}
+              </button>
+            </form>
           </div>
 
           {/* Back to Home */}
@@ -151,9 +162,9 @@ export default function Login() {
               </svg>
               Back to Home
             </button>
-          </form>
+          </div>
 
-          
+
         </div>
       </div>
     </div>
