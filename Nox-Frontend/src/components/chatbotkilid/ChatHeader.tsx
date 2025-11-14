@@ -14,7 +14,7 @@ interface ChatHeaderProps {
 export default function ChatHeader({ onClose }: ChatHeaderProps) {
   const navigate = useNavigate();
   return (
-    <div className="bg-linear-to-r from-blue-700 to-indigo-800 text-white px-4 py-3 flex justify-between items-center">
+    <div className="bg-linear-to-r from-orange-400 to-indigo-800 text-white px-4 py-3 flex justify-between items-center">
       <div className="flex items-center gap-2">
         <img
           src="/RealNoxyIcon.png"

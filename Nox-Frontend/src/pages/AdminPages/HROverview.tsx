@@ -5,6 +5,7 @@ import {
   FolderModal,
   type FolderModalType,
 } from "@/components/modals/ADMINHR/FolderModal";
+import { FolderContentModal } from "@/components/modals/ADMINHR/FolderContentModal";
 import HRnav from "@/components/layout/AdminLayout/HRnav";
 import ChatbotAssistant from "@/components/chatbotkilid/ChatbotAssistant";
 
@@ -14,6 +15,8 @@ export default function HROverview() {
   const [modalType, setModalType] = useState<FolderModalType>("add");
   const [selectedFolder, setSelectedFolder] = useState<any>(null);
   const [folders, setFolders] = useState<any[]>([]);
+  const [folderContentModalOpen, setFolderContentModalOpen] = useState(false);
+  const [selectedFolderForContent, setSelectedFolderForContent] = useState<any>(null);
 
   const handleModalOpen = (type: FolderModalType, folder?: any) => {
     setModalType(type);
@@ -39,6 +42,11 @@ export default function HROverview() {
         )
       );
     }
+  };
+
+  const handleFolderClick = (folder: any) => {
+    setSelectedFolderForContent(folder);
+    setFolderContentModalOpen(true);
   };
 
   return (
@@ -80,6 +88,7 @@ export default function HROverview() {
               {folders.map((folder) => (
                 <div
                   key={folder.id}
+                  onClick={() => handleFolderClick(folder)}
                   className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow cursor-pointer"
                 >
                   <div className="flex items-center justify-between mb-4">
@@ -124,9 +133,16 @@ export default function HROverview() {
           onSave={handleModalSave}
         />
 
+        {/* Folder Content Modal */}
+        <FolderContentModal
+          open={folderContentModalOpen}
+          onOpenChange={setFolderContentModalOpen}
+          folderName={selectedFolderForContent?.name}
+        />
+
         {/* AI Assistant Button (Bottom Right) */}
+        <ChatbotAssistant />
       </div>
-      <ChatbotAssistant />
     </AdminHeader>
   );
 }
