@@ -128,23 +128,7 @@ export default function Login() {
                   Forgot password?
                 </a>
               </div>
-
-              {/* Sign In Button */}
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full bg-blue-600 text-white font-medium py-2.5 px-4 rounded-md hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed transition-colors text-base focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
-              >
-                {isLoading ? "Signing In..." : "Sign In"}
-              </button>
-            </form>
-
-            {/* Create Account Link */}
-            <div className="mt-4 text-center text-sm">
-              <span className="text-black font-light">New employee? </span>
-              <a href="#" className="text-primary font-medium hover:underline">
-                Create your account
-              </a>
+              
             </div>
           </div>
 
@@ -167,7 +151,9 @@ export default function Login() {
               </svg>
               Back to Home
             </button>
-          </div>
+          </form>
+
+          
         </div>
       </div>
     </div>

@@ -41,61 +41,56 @@ export function useUserManagement() {
   };
 
   const handleUserModalSave = async (data: any) => {
-    try {
-      if (userModalType === "add") {
-        const createRequest = {
-          userName: data.email,
-          email: data.email,
-          password: data.password,
-          firstName: data.firstName,
-          lastName: data.lastName,
-          phone: data.phone || undefined,
-          address: data.address || undefined,
-          departmentId: parseInt(data.departmentId),
-          startDate: data.startDate || undefined,
-          employeeId: data.employeeId || undefined,
-          role: data.role || undefined,
-        };
+    if (userModalType === "add") {
+      const createRequest = {
+        userName: data.email,
+        email: data.email,
+        password: data.password,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        phone: data.phone || undefined,
+        address: data.address || undefined,
+        departmentId: parseInt(data.departmentId),
+        startDate: data.startDate || undefined,
+        employeeId: data.employeeId || undefined,
+        role: data.role || undefined,
+      };
 
-        const newUser = await apiClient.createUser(createRequest);
-        setUsers([...users, newUser]);
-      } else if (userModalType === "edit" && selectedUser) {
-        const updateRequest = {
-          firstName: data.firstName,
-          lastName: data.lastName,
-          phone: data.phone || undefined,
-          address: data.address || undefined,
-          departmentId: parseInt(data.departmentId),
-          startDate: data.startDate || undefined,
-          employeeId: data.employeeId || undefined,
-          role: data.role || undefined,
-        };
+      const newUser = await apiClient.createUser(createRequest);
+      setUsers([...users, newUser]);
+    } else if (userModalType === "edit" && selectedUser) {
+      const updateRequest = {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        phone: data.phone || undefined,
+        address: data.address || undefined,
+        departmentId: parseInt(data.departmentId),
+        startDate: data.startDate || undefined,
+        employeeId: data.employeeId || undefined,
+        role: data.role || undefined,
+      };
 
-        const updatedUser = await apiClient.updateUser(
-          selectedUser.id,
-          updateRequest
-        );
+      const updatedUser = await apiClient.updateUser(
+        selectedUser.id,
+        updateRequest
+      );
 
-        // If the API response doesn't include roles, manually add them
-        if (
-          data.role &&
-          (!updatedUser.roles || !updatedUser.roles.includes(data.role))
-        ) {
-          updatedUser.roles = [data.role];
-        }
-
-        setUsers(
-          users.map((user) =>
-            user.id === selectedUser.id ? updatedUser : user
-          )
-        );
+      // If the API response doesn't include roles, manually add them
+      if (
+        data.role &&
+        (!updatedUser.roles || !updatedUser.roles.includes(data.role))
+      ) {
+        updatedUser.roles = [data.role];
       }
 
-      setUserModalOpen(false);
-    } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to save user");
-      console.error("Error saving user:", err);
+      setUsers(
+        users.map((user) =>
+          user.id === selectedUser.id ? updatedUser : user
+        )
+      );
     }
+
+    setUserModalOpen(false);
   };
 
   const handleDeleteUser = async (userId: string) => {
