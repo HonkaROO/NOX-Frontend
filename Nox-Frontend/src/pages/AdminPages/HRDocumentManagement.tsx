@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import UploadDocumentDialog from "@/components/modals/ADMINHR/HRUploadModal";
 import HRDocumentViewModal from "@/components/modals/ADMINHR/HRDocumentViewModal";
+import ChatbotAssistant from "@/components/chatbotkilid/ChatbotAssistant";
 
 interface Document {
   id: number;
@@ -256,6 +257,7 @@ export default function HRDocumentManagement() {
           ))}
         </div>
       </div>
+      <ChatbotAssistant />
       <UploadDocumentDialog
         open={uploadDialogOpen}
         onOpenChange={setUploadDialogOpen}

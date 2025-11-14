@@ -1,13 +1,17 @@
 import { useState } from "react";
 import AdminHeader from "@/components/layout/AdminLayout/AdminHeader";
 import { useNavigate } from "react-router-dom";
-import { FolderModal, type FolderModalType } from "@/components/modals/ADMINHR/FolderModal";
+import {
+  FolderModal,
+  type FolderModalType,
+} from "@/components/modals/ADMINHR/FolderModal";
 import HRnav from "@/components/layout/AdminLayout/HRnav";
+import ChatbotAssistant from "@/components/chatbotkilid/ChatbotAssistant";
 
 export default function HROverview() {
   const navigate = useNavigate();
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalType, setModalType] = useState<FolderModalType>('add');
+  const [modalType, setModalType] = useState<FolderModalType>("add");
   const [selectedFolder, setSelectedFolder] = useState<any>(null);
   const [folders, setFolders] = useState<any[]>([]);
 
@@ -18,7 +22,7 @@ export default function HROverview() {
   };
 
   const handleModalSave = (data: any) => {
-    if (modalType === 'add') {
+    if (modalType === "add") {
       const newFolder = {
         id: Date.now(), // Simple ID generation
         name: data.name,
@@ -26,18 +30,19 @@ export default function HROverview() {
         createdAt: new Date().toISOString(),
       };
       setFolders([...folders, newFolder]);
-    } else if (modalType === 'edit' && selectedFolder) {
-      setFolders(folders.map(folder =>
-        folder.id === selectedFolder.id
-          ? { ...folder, name: data.name, description: data.description }
-          : folder
-      ));
+    } else if (modalType === "edit" && selectedFolder) {
+      setFolders(
+        folders.map((folder) =>
+          folder.id === selectedFolder.id
+            ? { ...folder, name: data.name, description: data.description }
+            : folder
+        )
+      );
     }
   };
 
   return (
-     
-<AdminHeader>
+    <AdminHeader>
       <div className="p-6">
         <HRnav activePage="HROverview" />
 
@@ -49,17 +54,14 @@ export default function HROverview() {
           {/* Add Folder Button */}
           <div className="mb-6">
             <button
-              onClick={() => handleModalOpen('add')}
+              onClick={() => handleModalOpen("add")}
               className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
             >
               + Add Folder
             </button>
           </div>
-           
         </div>
         {/* Contents Here */}
-
-         
 
         {/* Folder Cards */}
         <div>
@@ -67,7 +69,10 @@ export default function HROverview() {
 
           {folders.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
-              <p>No folders created yet. Click "Add Folder" to create your first folder.</p>
+              <p>
+                No folders created yet. Click "Add Folder" to create your first
+                folder.
+              </p>
             </div>
           ) : (
             /* Grid of Folder Cards */
@@ -79,7 +84,9 @@ export default function HROverview() {
                 >
                   <div className="flex items-center justify-between mb-4">
                     <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
-                      <span className="text-indigo-600 font-semibold text-lg">📁</span>
+                      <span className="text-indigo-600 font-semibold text-lg">
+                        📁
+                      </span>
                     </div>
                     <button
                       onClick={(e) => {
@@ -108,10 +115,6 @@ export default function HROverview() {
           )}
         </div>
 
-           
-
-         
-
         {/* Folder Modal */}
         <FolderModal
           open={modalOpen}
@@ -122,16 +125,8 @@ export default function HROverview() {
         />
 
         {/* AI Assistant Button (Bottom Right) */}
-        <button className="fixed bottom-6 right-6 w-16 h-16 bg-linear-to-br from-blue-700 to-indigo-900 hover:shadow-[0_0_15px_rgba(59,130,246,0.6)] rounded-full shadow-lg transition-all flex flex-col items-center justify-center text-white">
-          <img
-            src="https://api.builder.io/api/v1/image/assets/TEMP/f3bc07a8c5c425567b5ddbdcf2cc3b48aaca8522?width=72"
-            alt="Bot"
-            className="w-9 h-9 rounded-full"
-          />
-
-          <span className="text-[10px] font-semibold">ASK NOXY</span>
-        </button>
       </div>
+      <ChatbotAssistant />
     </AdminHeader>
   );
 }

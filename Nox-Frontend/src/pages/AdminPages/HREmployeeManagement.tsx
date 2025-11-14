@@ -20,6 +20,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Pencil, Trash2 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { EmployeeModal } from "@/components/modals/ADMINHR/EmployeeModal";
+import ChatbotAssistant from "@/components/chatbotkilid/ChatbotAssistant";
 
 const EMPLOYEES = [
   {
@@ -202,6 +203,7 @@ export default function HREmployeeManagement() {
             </CardContent>
           </Card>
         </div>
+        <ChatbotAssistant />
         <EmployeeModal
           open={employeeModalOpen}
           onOpenChange={setEmployeeModalOpen}

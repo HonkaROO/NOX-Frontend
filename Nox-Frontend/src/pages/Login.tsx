@@ -23,7 +23,7 @@ export default function Login() {
       if (userData.roles?.includes("SuperAdmin")) {
         navigate("/SuperAdminDashboard");
       } else if (userData.roles?.includes("Admin")) {
-        navigate("/HRDashboard");
+        navigate("/HrOverview");
       } else {
         navigate("/dashboard");
       }

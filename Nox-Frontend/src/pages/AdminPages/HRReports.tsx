@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useState } from "react";
+import ChatbotAssistant from "@/components/chatbotkilid/ChatbotAssistant";
 
 type Employee = {
   name: string;
@@ -322,6 +323,7 @@ export default function HRReports() {
           </Card>
         </div>
       </div>
+      <ChatbotAssistant />
     </AdminHeader>
   );
 }
