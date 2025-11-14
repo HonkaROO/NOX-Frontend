@@ -9,8 +9,7 @@ export default function HRnav({ activePage }: HRnavProps) {
 
   const navItems = [
     
-    { key: "HROverview", label: "Overview", path: "/HROverview" },
-    { key: "HRDashboard", label: "Dashboard", path: "/HRDashboard" },
+    { key: "HROverview", label: "Overview", path: "/HROverview" },    
     { key: "HREmployeeManagement", label: "Employee Management", path: "/HREmployeeManagement" },
     { key: "HRDocumentManagement", label: "Document Management", path: "/HRDocumentManagement" },
     

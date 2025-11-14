@@ -7,25 +7,25 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-export type UserModalType = "add" | "edit";
+export type EmployeeModalType = "add" | "edit";
 
-interface UserModalProps {
+interface EmployeeModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  type: UserModalType;
-  user?: any;
+  type: EmployeeModalType;
+  employee?: any;
   departments?: any[];
   onSave?: (data: any) => Promise<void>;
 }
 
-export function UserModal({
+export function EmployeeModal({
   open,
   onOpenChange,
   type,
-  user,
+  employee,
   departments = [],
   onSave,
-}: UserModalProps) {
+}: EmployeeModalProps) {
   const [errors, setErrors] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -38,9 +38,9 @@ export function UserModal({
   const getTitle = () => {
     switch (type) {
       case "add":
-        return "Add New User";
+        return "Add New Employee";
       case "edit":
-        return "Edit User";
+        return "Edit Employee";
       default:
         return "";
     }
@@ -98,7 +98,7 @@ export function UserModal({
                 password: formData.get("password") as string,
                 confirmPassword: formData.get("confirmPassword") as string,
                 departmentId: formData.get("departmentId") as string,
-                role: formData.get("role") as string,
+                role: "User", // HR can only create User role
                 phone: formData.get("phone") as string,
                 address: formData.get("address") as string,
                 employeeId: formData.get("employeeId") as string,
@@ -123,7 +123,7 @@ export function UserModal({
                 }
                 onOpenChange(false);
               } catch (err) {
-                setErrors(err instanceof Error ? err.message : "Failed to save user");
+                setErrors(err instanceof Error ? err.message : "Failed to save employee");
               }
             }}
           >
@@ -135,7 +135,7 @@ export function UserModal({
                 <input
                   name="firstName"
                   type="text"
-                  defaultValue={type === "edit" ? user?.firstName : ""}
+                  defaultValue={type === "edit" ? employee?.firstName : ""}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   placeholder="Enter first name"
                   required
@@ -148,7 +148,7 @@ export function UserModal({
                 <input
                   name="lastName"
                   type="text"
-                  defaultValue={type === "edit" ? user?.lastName : ""}
+                  defaultValue={type === "edit" ? employee?.lastName : ""}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   placeholder="Enter last name"
                   required
@@ -161,7 +161,7 @@ export function UserModal({
                 <input
                   name="userName"
                   type="text"
-                  defaultValue={type === "edit" ? user?.userName : ""}
+                  defaultValue={type === "edit" ? employee?.userName : ""}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   placeholder="Enter username"
                   required={type === "add"}
@@ -177,7 +177,7 @@ export function UserModal({
               <input
                 name="email"
                 type="email"
-                defaultValue={type === "edit" ? user?.email : ""}
+                defaultValue={type === "edit" ? employee?.email : ""}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 placeholder="Enter email"
                 required
@@ -242,7 +242,7 @@ export function UserModal({
                 </label>
                 <select
                   name="departmentId"
-                  defaultValue={type === "edit" ? user?.departmentId : ""}
+                  defaultValue={type === "edit" ? employee?.departmentId : ""}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   required
                 >
@@ -255,25 +255,6 @@ export function UserModal({
                 </select>
               </div>
 
-              {/* ADD THIS ROLE FIELD */}
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Role
-                </label>
-                <select
-                  name="role"
-                  defaultValue={
-                    type === "edit" ? user?.roles?.[0] || "User" : "User"
-                  }
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  required
-                >
-                  <option value="User">User</option>
-                  <option value="Admin">Admin</option>
-                  <option value="SuperAdmin">SuperAdmin</option>
-                </select>
-              </div>
-
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
                   Employee ID
@@ -281,7 +262,7 @@ export function UserModal({
                 <input
                   name="employeeId"
                   type="text"
-                  defaultValue={type === "edit" ? user?.employeeId : ""}
+                  defaultValue={type === "edit" ? employee?.employeeId : ""}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   placeholder="Enter employee ID"
                 />
@@ -296,7 +277,7 @@ export function UserModal({
                 <input
                   name="phone"
                   type="tel"
-                  defaultValue={type === "edit" ? user?.phone : ""}
+                  defaultValue={type === "edit" ? employee?.phone : ""}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   placeholder="Enter phone number"
                 />
@@ -309,7 +290,7 @@ export function UserModal({
                   name="startDate"
                   type="date"
                   defaultValue={
-                    type === "edit" ? user?.startDate?.split("T")[0] : ""
+                    type === "edit" ? employee?.startDate?.split("T")[0] : ""
                   }
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
@@ -322,7 +303,7 @@ export function UserModal({
               </label>
               <textarea
                 name="address"
-                defaultValue={type === "edit" ? user?.address : ""}
+                defaultValue={type === "edit" ? employee?.address : ""}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 placeholder="Enter address"
                 rows={2}
@@ -340,7 +321,7 @@ export function UserModal({
                 type="submit"
                 className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
               >
-                {type === "add" ? "Add" : "Update"} User
+                {type === "add" ? "Add" : "Update"} Employee
               </button>
               <button
                 type="button"
