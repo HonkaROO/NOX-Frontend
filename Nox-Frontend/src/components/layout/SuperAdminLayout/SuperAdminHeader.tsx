@@ -1,6 +1,6 @@
 import { type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { useAuth } from "@/hooks/useAuth";
 
 type LayoutProps = {
   children: ReactNode;
@@ -9,7 +9,14 @@ type LayoutProps = {
 };
 
 export default function HeaderLayout({ children }: LayoutProps) {
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/login");
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -19,16 +26,21 @@ export default function HeaderLayout({ children }: LayoutProps) {
           <div className="flex items-center gap-2">
             <img src="/NpaxLogo.png" alt="N-PAX Logo" className="w-30 h-8" />
             <div className="flex flex-col">
-              <span className="text-[13px] font-medium text-black">John Doe</span>
-              <span className="text-[10px] font-light text-black">Super Admin</span>
+              <span className="text-[13px] font-medium text-black">
+                John Doe
+              </span>
+              <span className="text-[10px] font-light text-black">
+                Super Admin
+              </span>
             </div>
           </div>
 
           {/* Header Actions */}
           <div className="flex items-center gap-3">
             <button
-            onClick={() => navigate('/login')}
-             className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 font-medium">
+              onClick={handleLogout}
+              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 font-medium"
+            >
               Logout
             </button>
             <button className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 font-medium">
@@ -51,5 +63,5 @@ export default function HeaderLayout({ children }: LayoutProps) {
         <span className="text-[10px] font-semibold">ASK NOXY</span>
       </button> */}
     </div>
-  )
+  );
 }
