@@ -1,3 +1,4 @@
+import { useState } from "react";
 import AdminHeader from "@/components/layout/AdminLayout/AdminHeader";
 import HRnav from "@/components/layout/AdminLayout/HRnav";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Pencil, Trash2 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { EmployeeModal } from "@/components/modals/ADMINHR/EmployeeModal";
 
 const EMPLOYEES = [
   {
@@ -59,6 +61,21 @@ const EMPLOYEES = [
 
 export default function HREmployeeManagement() {
   const navigate = useNavigate();
+  const [employeeModalOpen, setEmployeeModalOpen] = useState(false);
+  const [employeeModalType, setEmployeeModalType] = useState<"add" | "edit">("add");
+  const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
+
+  const handleEmployeeModalOpen = (type: "add" | "edit", employee?: any) => {
+    setEmployeeModalType(type);
+    setSelectedEmployee(employee || null);
+    setEmployeeModalOpen(true);
+  };
+
+  const handleEmployeeModalSave = async (data: any) => {
+    // TODO: Implement save logic, probably using apiClient.createUser or similar
+    console.log("Saving employee:", data);
+    // For now, just close
+  };
   return (
     <AdminHeader>
       <div className="p-6">
@@ -111,7 +128,10 @@ export default function HREmployeeManagement() {
             <CardHeader className="flex-row items-center justify-between pb-4">
               <CardTitle className="text-lg">Employee List</CardTitle>
               <CardAction>
-                <Button className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-700">
+                <Button
+                  onClick={() => handleEmployeeModalOpen("add")}
+                  className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-700"
+                >
                   + Add Employee
                 </Button>
               </CardAction>
@@ -182,6 +202,14 @@ export default function HREmployeeManagement() {
             </CardContent>
           </Card>
         </div>
+        <EmployeeModal
+          open={employeeModalOpen}
+          onOpenChange={setEmployeeModalOpen}
+          type={employeeModalType}
+          employee={selectedEmployee}
+          departments={[]} // TODO: Fetch departments
+          onSave={handleEmployeeModalSave}
+        />
       </div>
     </AdminHeader>
   );
