@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { ProtectedRoute } from './components/routing/ProtectedRoute';
+import { Toaster } from './components/ui/sonner';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
@@ -17,6 +18,7 @@ import HROverview from './pages/AdminPages/HROverview';
 function App() {
   return (
     <Router>
+      <Toaster position="top-center" />
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Home />} />

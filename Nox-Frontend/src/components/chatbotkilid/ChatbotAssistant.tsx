@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { AnimatePresence } from "framer-motion";
 import { useChatbot } from "../../hooks/useChatbot";
 import { apiClient } from "@/lib/api";
 import ChatToggleButton from "./ChatToggleButton";
@@ -42,14 +43,16 @@ export default function ChatbotAssistant() {
         isOpen={isChatOpen}
       />
 
-      {isChatOpen && (
-        <ChatWindow
-          messages={messages}
-          isLoading={isLoading}
-          onSendMessage={sendMessage}
-          onClose={() => setIsChatOpen(false)}
-        />
-      )}
+      <AnimatePresence>
+        {isChatOpen && (
+          <ChatWindow
+            messages={messages}
+            isLoading={isLoading}
+            onSendMessage={sendMessage}
+            onClose={() => setIsChatOpen(false)}
+          />
+        )}
+      </AnimatePresence>
     </>
   );
 }

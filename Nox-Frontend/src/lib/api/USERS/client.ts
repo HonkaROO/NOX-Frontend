@@ -2,7 +2,8 @@ import { HttpClient } from './httpClient';
 import { AuthService } from './authService';
 import { UserService } from './userService';
 import { DepartmentService } from './departmentService';
-import { ChatbotService } from './chatbotService';
+import { ChatbotService } from '../ChatBot/chatbotService';
+
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 

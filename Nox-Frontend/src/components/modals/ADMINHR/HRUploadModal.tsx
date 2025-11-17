@@ -1,5 +1,5 @@
 // components/UploadDocumentDialog.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -17,8 +17,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Upload } from "lucide-react";
-import { Textarea } from "@/components/ui/textarea";
+import { Upload, X, FileText, Sparkles, FileWarning } from "lucide-react";
+import { toast } from "sonner";
+import { materialService, folderService, taskService } from "@/lib/api/Onboardin/onboardingService";
+import type { OnboardingFolder, OnboardingTask } from "@/lib/api/Onboardin/onboardingService";
 
 interface UploadDocumentDialogProps {
   open: boolean;
@@ -36,11 +38,177 @@ export default function UploadDocumentDialog({
     dueDate: "",
     steps: [] as string[],
   });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
 
-  const handleSubmit = () => {
-    console.log("Uploading document:", formData);
-    // Handle upload logic here
-    onOpenChange(false);
+  // Folder and Task selection
+  const [folders, setFolders] = useState<OnboardingFolder[]>([]);
+  const [tasks, setTasks] = useState<OnboardingTask[]>([]);
+  const [selectedFolderId, setSelectedFolderId] = useState<string>("");
+  const [selectedTaskId, setSelectedTaskId] = useState<string>("");
+  const [isLoadingFolders, setIsLoadingFolders] = useState(false);
+  const [isLoadingTasks, setIsLoadingTasks] = useState(false);
+
+  // AI-indexable file types (supported by Noxy AI backend)
+  const aiIndexableTypes = [".pdf", ".json", ".md"];
+  const allowedTypes = [".pdf", ".json", ".md"];
+  const maxFileSize = 10 * 1024 * 1024; // 10MB
+
+  // Check if file is AI-indexable
+  const isAiIndexable = (fileName: string): boolean => {
+    const fileExt = "." + fileName.split(".").pop()?.toLowerCase();
+    return aiIndexableTypes.includes(fileExt);
+  };
+
+  const validateFile = (file: File): boolean => {
+    const fileExt = "." + file.name.split(".").pop()?.toLowerCase();
+    if (!allowedTypes.includes(fileExt)) {
+      toast.error("Invalid file type", {
+        description: "Only PDF, JSON, and Markdown files are allowed",
+      });
+      return false;
+    }
+    if (file.size > maxFileSize) {
+      toast.error("File too large", {
+        description: "Maximum file size is 10MB",
+      });
+      return false;
+    }
+    return true;
+  };
+
+  // Load folders on modal open
+  useEffect(() => {
+    if (open) {
+      loadFolders();
+    }
+  }, [open]);
+
+  // Load tasks when folder is selected
+  useEffect(() => {
+    if (selectedFolderId) {
+      loadTasks(parseInt(selectedFolderId));
+    } else {
+      setTasks([]);
+      setSelectedTaskId("");
+    }
+  }, [selectedFolderId]);
+
+  const loadFolders = async () => {
+    setIsLoadingFolders(true);
+    try {
+      const data = await folderService.getAll();
+      setFolders(data);
+    } catch (error) {
+      toast.error("Failed to load folders");
+    } finally {
+      setIsLoadingFolders(false);
+    }
+  };
+
+  const loadTasks = async (folderId: number) => {
+    setIsLoadingTasks(true);
+    try {
+      const data = await taskService.getByFolderId(folderId);
+      setTasks(data);
+    } catch (error) {
+      toast.error("Failed to load tasks");
+    } finally {
+      setIsLoadingTasks(false);
+    }
+  };
+
+  const handleFileSelect = (file: File) => {
+    if (validateFile(file)) {
+      setSelectedFile(file);
+      const isIndexable = isAiIndexable(file.name);
+      toast.success("File selected", {
+        description: isIndexable
+          ? `${file.name} - Will be AI-searchable ✨`
+          : `${file.name} - Stored but not AI-searchable`,
+      });
+    }
+  };
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFileSelect(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleSubmit = async () => {
+    // Validation
+    if (!selectedFile) {
+      toast.error("No file selected", {
+        description: "Please select a file to upload",
+      });
+      return;
+    }
+
+    if (!selectedTaskId) {
+      toast.error("Task required", {
+        description: "Please select a folder and task",
+      });
+      return;
+    }
+
+    if (!formData.title.trim()) {
+      toast.error("Title required", {
+        description: "Please enter a document title",
+      });
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      const taskId = parseInt(selectedTaskId);
+
+      // Upload to NOX-Backend (which automatically forwards to Noxy AI if supported)
+      await materialService.upload(taskId, selectedFile);
+
+      const isIndexable = isAiIndexable(selectedFile.name);
+
+      toast.success("Document uploaded successfully!", {
+        description: isIndexable
+          ? "File uploaded and will be indexed for AI search"
+          : "File uploaded to storage",
+      });
+
+      // Reset form
+      setFormData({
+        title: "",
+        type: "",
+        description: "",
+        dueDate: "",
+        steps: [],
+      });
+      setSelectedFile(null);
+      setSelectedFolderId("");
+      setSelectedTaskId("");
+      onOpenChange(false);
+    } catch (error: any) {
+      toast.error("Upload failed", {
+        description: error.message || "Failed to upload document",
+      });
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const addStep = () => {
@@ -68,6 +236,60 @@ export default function UploadDocumentDialog({
         </DialogHeader>
 
         <div className="space-y-4">
+          {/* Folder Selection */}
+          <div>
+            <Label htmlFor="folder" className="text-sm">
+              Select Folder <span className="text-red-500">*</span>
+            </Label>
+            <Select
+              value={selectedFolderId}
+              onValueChange={setSelectedFolderId}
+              disabled={isLoadingFolders}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue placeholder={isLoadingFolders ? "Loading folders..." : "Select folder"} />
+              </SelectTrigger>
+              <SelectContent>
+                {folders.map((folder) => (
+                  <SelectItem key={folder.id} value={folder.id.toString()}>
+                    {folder.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Task Selection */}
+          <div>
+            <Label htmlFor="task" className="text-sm">
+              Select Task <span className="text-red-500">*</span>
+            </Label>
+            <Select
+              value={selectedTaskId}
+              onValueChange={setSelectedTaskId}
+              disabled={!selectedFolderId || isLoadingTasks}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue
+                  placeholder={
+                    !selectedFolderId
+                      ? "Select folder first"
+                      : isLoadingTasks
+                        ? "Loading tasks..."
+                        : "Select task"
+                  }
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {tasks.map((task) => (
+                  <SelectItem key={task.id} value={task.id.toString()}>
+                    {task.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* Document Title */}
           <div>
             <Label htmlFor="title" className="text-sm">
@@ -177,13 +399,88 @@ export default function UploadDocumentDialog({
             </div>
           </div>
 
-
           {/* Upload Area */}
           <div>
             <Label className="text-sm">Document Upload</Label>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer mt-1">
-              <Upload className="mx-auto mb-2 text-gray-400" size={32} />
-              <p className="text-sm text-gray-600">Upload</p>
+            <div
+              className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer mt-1 ${
+                dragActive
+                  ? "border-blue-500 bg-blue-50"
+                  : "border-gray-300 bg-gray-50 hover:bg-gray-100"
+              }`}
+              onDragEnter={handleDrag}
+              onDragLeave={handleDrag}
+              onDragOver={handleDrag}
+              onDrop={handleDrop}
+              onClick={() => document.getElementById("file-upload")?.click()}
+            >
+              <input
+                id="file-upload"
+                type="file"
+                accept=".pdf,.json,.md"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    handleFileSelect(e.target.files[0]);
+                  }
+                }}
+                className="hidden"
+              />
+              {selectedFile ? (
+                <div className="flex items-center justify-center gap-3">
+                  <FileText className="text-green-600" size={32} />
+                  <div className="text-left flex-1">
+                    <p className="text-sm font-medium text-gray-900">
+                      {selectedFile.name}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {(selectedFile.size / 1024).toFixed(2)} KB
+                    </p>
+                    {/* AI-Indexable Badge */}
+                    {isAiIndexable(selectedFile.name) ? (
+                      <div className="flex items-center gap-1 mt-1">
+                        <Sparkles size={12} className="text-purple-600" />
+                        <span className="text-xs text-purple-600 font-medium">
+                          AI-Searchable
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1 mt-1">
+                        <FileWarning size={12} className="text-amber-600" />
+                        <span className="text-xs text-amber-600 font-medium">
+                          Storage Only
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="ml-2"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedFile(null);
+                    }}
+                  >
+                    <X size={16} />
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <Upload className="mx-auto mb-2 text-gray-400" size={32} />
+                  <p className="text-sm text-gray-600">
+                    Click to upload or drag and drop
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    PDF, JSON, or Markdown (Max 10MB)
+                  </p>
+                  <div className="flex items-center justify-center gap-1 mt-2">
+                    <Sparkles size={12} className="text-purple-400" />
+                    <span className="text-xs text-purple-400">
+                      These formats will be AI-searchable in chatbot
+                    </span>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
@@ -193,14 +490,16 @@ export default function UploadDocumentDialog({
               variant="outline"
               onClick={() => onOpenChange(false)}
               className="px-6"
+              disabled={isUploading}
             >
               Cancel
             </Button>
             <Button
               onClick={handleSubmit}
               className="px-6 bg-green-600 hover:bg-green-700"
+              disabled={isUploading}
             >
-              Upload
+              {isUploading ? "Uploading..." : "Upload"}
             </Button>
           </div>
         </div>

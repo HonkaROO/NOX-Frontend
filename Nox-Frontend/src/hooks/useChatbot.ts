@@ -3,11 +3,15 @@ import {
   chatbotService,
   type ChatMessage,
   type ChatResponse,
-} from "@/lib/api/chatbotService";
+} from "@/lib/api/ChatBot/chatbotService";
 
 const STORAGE_KEY_PREFIX = "chat_history_";
 
-export const useChatbot = (userId: string, username: string, firstname?: string) => {
+export const useChatbot = (
+  userId: string,
+  username: string,
+  firstname?: string
+) => {
   const getGreetingMessage = (name: string) => {
     const displayName = name && name !== "Guest" ? name : "";
     return `Hello${
@@ -102,8 +106,7 @@ export const useChatbot = (userId: string, username: string, firstname?: string)
         const response: ChatResponse = await chatbotService.sendMessage(
           username,
           userId,
-          messageText,
-          conversationId
+          messageText
         );
 
         // Update conversation ID if first message
@@ -144,8 +147,7 @@ export const useChatbot = (userId: string, username: string, firstname?: string)
       {
         id: 1,
         sender: "bot" as const,
-        message:
-          getGreetingMessage(firstname || username),
+        message: getGreetingMessage(firstname || username),
         timestamp: new Date().toISOString(),
       },
     ];

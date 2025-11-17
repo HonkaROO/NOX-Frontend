@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import HeaderLayout from "@/components/layout/HeaderLayout";
 import { useNavigate } from "react-router-dom";
-import { QuickActionCard } from "@/components/dasboard/QuickActions";
+import { QuickActionCard } from "@/components/dashboard/QuickActionCard";
 import { TaskModal, type TaskCategory } from "@/components/modals/TaskModal";
 import ChatbotAssistant from "@/components/chatbotkilid/ChatbotAssistant";
 import { apiClient } from "@/lib/api";
