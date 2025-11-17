@@ -24,15 +24,13 @@ export default function ChatHeader({ onClose }: ChatHeaderProps) {
         <h3 className="text-sm font-semibold">Noxy Assistant</h3>
         <TooltipProvider>
           <Tooltip>
-            <TooltipTrigger>
-              <button className="px-1"
-                onClick={() =>navigate("/AIassistant")}
-              >
-              <ExternalLink className="mx-4" />
+            <TooltipTrigger asChild>
+              <button className="px-1" onClick={() => navigate("/AIassistant")}>
+                <ExternalLink className="mx-4" />
               </button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Open in Ai Assistan Tab</p>
+              <p>Open in Ai Assistant Tab</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

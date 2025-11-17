@@ -6,30 +6,41 @@ import ChatWindow from "./ChatWindow";
 
 export default function ChatbotAssistant() {
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [username, setUsername] = useState<string>("Guest");
+  const [username, setUsername] = useState<string>("");
+  const [userId, setUserId] = useState<string>("");
+  const [firstname, setFirstname] = useState<string>("Guest");
 
   // Get actual logged-in user (same logic as AIAssistant page)
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
         const user = await apiClient.getCurrentUser();
-        // Use firstName or userName as username for chatbot
-        setUsername(user.firstName || user.userName || "Guest");
+        // Set firstName for greeting display
+        setFirstname(user.firstName || "Guest");
+        // Set username for backend
+        setUsername(user.userName || "");
+        // Set userId
+        setUserId(user.id || "");
       } catch (error) {
         console.error("Failed to fetch current user:", error);
         // Fallback to Guest if not logged in
-        setUsername("Guest");
+        setFirstname("Guest");
+        setUsername("");
+        setUserId("");
       }
     };
 
     fetchCurrentUser();
   }, []);
 
-  const { messages, isLoading, sendMessage } = useChatbot(username);
+  const { messages, isLoading, sendMessage } = useChatbot(userId, username, firstname);
 
   return (
     <>
-      <ChatToggleButton onClick={() => setIsChatOpen(!isChatOpen)} />
+      <ChatToggleButton
+        onClick={() => setIsChatOpen(!isChatOpen)}
+        isOpen={isChatOpen}
+      />
 
       {isChatOpen && (
         <ChatWindow

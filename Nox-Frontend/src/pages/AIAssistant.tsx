@@ -12,19 +12,27 @@ export default function AIAssistant() {
   const [inputValue, setInputValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [username, setUsername] = useState<string>("Guest");
+  const [displayName, setDisplayName] = useState<string>("Guest");
+  const [username, setUsername] = useState<string>("");
+  const [userId, setUserId] = useState<string>("");
 
   // Get actual logged-in user
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
         const user = await apiClient.getCurrentUser();
-        // Use email as username for chatbot
-        setUsername(user.firstName || user.userName || "Guest");
+        console.log('[DEBUG] Current user:', user);
+        // Set display name for UI
+        setDisplayName(user.firstName || "Guest");
+        // Set username and userId for backend
+        setUsername(user.userName || "");
+        setUserId(user.id || "");
       } catch (error) {
         console.error("Failed to fetch current user:", error);
         // Fallback to Guest if not logged in
-        setUsername("Guest");
+        setDisplayName("Guest");
+        setUsername("");
+        setUserId("");
       }
     };
 
@@ -32,7 +40,7 @@ export default function AIAssistant() {
   }, []);
 
   const { messages, isLoading, error, sendMessage, clearChat, conversationId } =
-    useChatbot(username);
+    useChatbot(userId, username, displayName);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -58,7 +66,7 @@ export default function AIAssistant() {
         <div className="px-6 py-6 flex flex-col h-[80vh]">
           <div className="flex justify-between">
             <p className="text-sm text-gray-600 mb-1">
-              Welcome back, {username}
+              Welcome back, {displayName}
             </p>
             <Button
               onClick={() => {
