@@ -7,9 +7,9 @@ import {
 
 const STORAGE_KEY_PREFIX = "chat_history_";
 
-export const useChatbot = (username: string) => {
-  const getGreetingMessage = (username: string) => {
-    const displayName = username && username !== "Guest" ? username : "";
+export const useChatbot = (userId: string, username: string, firstname?: string) => {
+  const getGreetingMessage = (name: string) => {
+    const displayName = name && name !== "Guest" ? name : "";
     return `Hello${
       displayName ? ` ${displayName}` : ""
     }! I'm Noxy. What can I do for you today?\n\nI can help you with:\nGovernment requirement (SSS, PhilHealth, Pag-IBIG)\nDepartment-specific orientation\nCompany policies and procedures`;
@@ -19,7 +19,7 @@ export const useChatbot = (username: string) => {
     {
       id: 1,
       sender: "bot",
-      message: getGreetingMessage(username),
+      message: getGreetingMessage(firstname || username),
       timestamp: new Date().toISOString(),
     },
   ]);
@@ -29,10 +29,10 @@ export const useChatbot = (username: string) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Load messages from localStorage on mount or when username changes
+  // Load messages from localStorage on mount or when userId changes
   useEffect(() => {
-    if (username && username !== "Guest") {
-      const storageKey = `${STORAGE_KEY_PREFIX}${username}`;
+    if (userId && userId !== "Guest") {
+      const storageKey = `${STORAGE_KEY_PREFIX}${userId}`;
       const saved = localStorage.getItem(storageKey);
 
       if (saved) {
@@ -44,12 +44,12 @@ export const useChatbot = (username: string) => {
           console.error("Failed to load saved messages:", err);
         }
       } else {
-        // No saved messages, update the initial greeting with the username
+        // No saved messages, update the initial greeting with the firstname
         setMessages([
           {
             id: 1,
             sender: "bot",
-            message: getGreetingMessage(username),
+            message: getGreetingMessage(firstname || username),
             timestamp: new Date().toISOString(),
           },
         ]);
@@ -60,17 +60,17 @@ export const useChatbot = (username: string) => {
         {
           id: 1,
           sender: "bot",
-          message: getGreetingMessage(username),
+          message: getGreetingMessage(firstname || username),
           timestamp: new Date().toISOString(),
         },
       ]);
     }
-  }, [username]);
+  }, [userId, username, firstname]);
 
   // Save messages to localStorage whenever they change
   useEffect(() => {
-    if (username && username !== "Guest" && messages.length > 0) {
-      const storageKey = `${STORAGE_KEY_PREFIX}${username}`;
+    if (userId && userId !== "Guest" && messages.length > 0) {
+      const storageKey = `${STORAGE_KEY_PREFIX}${userId}`;
       const dataToSave = {
         messages,
         conversationId,
@@ -78,7 +78,7 @@ export const useChatbot = (username: string) => {
       };
       localStorage.setItem(storageKey, JSON.stringify(dataToSave));
     }
-  }, [messages, conversationId, username]);
+  }, [messages, conversationId, userId]);
 
   const sendMessage = useCallback(
     async (messageText: string) => {
@@ -101,6 +101,7 @@ export const useChatbot = (username: string) => {
         // Send to backend
         const response: ChatResponse = await chatbotService.sendMessage(
           username,
+          userId,
           messageText,
           conversationId
         );
@@ -135,7 +136,7 @@ export const useChatbot = (username: string) => {
         setIsLoading(false);
       }
     },
-    [username, conversationId]
+    [username, userId, conversationId]
   );
 
   const clearChat = useCallback(() => {
@@ -144,7 +145,7 @@ export const useChatbot = (username: string) => {
         id: 1,
         sender: "bot" as const,
         message:
-          getGreetingMessage(username),
+          getGreetingMessage(firstname || username),
         timestamp: new Date().toISOString(),
       },
     ];
@@ -154,11 +155,11 @@ export const useChatbot = (username: string) => {
     setError(null);
 
     // Clear from localStorage
-    if (username && username !== "Guest") {
-      const storageKey = `${STORAGE_KEY_PREFIX}${username}`;
+    if (userId && userId !== "Guest") {
+      const storageKey = `${STORAGE_KEY_PREFIX}${userId}`;
       localStorage.removeItem(storageKey);
     }
-  }, [username]);
+  }, [username, userId, firstname]);
 
   return {
     messages,

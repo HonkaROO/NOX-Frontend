@@ -43,7 +43,7 @@ export function useUserManagement() {
   const handleUserModalSave = async (data: any) => {
     if (userModalType === "add") {
       const createRequest = {
-        userName: data.email,
+        userName: data.userName,
         email: data.email,
         password: data.password,
         firstName: data.firstName,

@@ -29,31 +29,39 @@ export class ChatbotService {
   /**
    * Send a message to the chatbot
    */
-  async sendMessage(username: string, message: string, conversationId?: number): Promise<ChatResponse> {
-    const response = await fetch(`${this.baseURL}/chat/`, {
+  async sendMessage(username: string, userId: string, message: string, conversationId?: number): Promise<ChatResponse> {
+    console.log('[DEBUG] Sending chat request:', { username, userId, message });
+
+    const response = await fetch(`${this.baseURL}/chat`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         username,
+        userId,
         message,
-        conversation_id: conversationId,
       }),
     });
 
+    console.log('[DEBUG] Response status:', response.status);
+
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[ERROR] Chat API error:', errorText);
       throw new Error(`Chat API error: ${response.statusText}`);
     }
 
-    return response.json();
+    const data = await response.json();
+    console.log('[DEBUG] Response data:', data);
+    return data;
   }
 
   /**
    * Get conversation history for a user
    */
-  async getHistory(username: string): Promise<ConversationHistory[]> {
-    const response = await fetch(`${this.baseURL}/history/${username}`, {
+  async getHistory(userId: string): Promise<ConversationHistory[]> {
+    const response = await fetch(`${this.baseURL}/history/${userId}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
