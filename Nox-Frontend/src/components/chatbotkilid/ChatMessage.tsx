@@ -1,18 +1,16 @@
 import Linkify from "react-linkify";
-import type { ChatMessage as ChatMessageType } from "../../lib/api/chatbotService";
+import type { ChatMessage as ChatMessageType } from "../../lib/api/ChatBot/chatbotService";
 
 interface ChatMessageProps {
   message: ChatMessageType;
 }
 
 export default function ChatMessage({ message }: ChatMessageProps) {
-  const isUser = message.sender === 'user';
+  const isUser = message.sender === "user";
 
   return (
     <div
-      className={`flex items-start gap-3 ${
-        isUser ? 'flex-row-reverse' : ''
-      }`}
+      className={`flex items-start gap-3 ${isUser ? "flex-row-reverse" : ""}`}
     >
       {!isUser && (
         <img
@@ -24,8 +22,8 @@ export default function ChatMessage({ message }: ChatMessageProps) {
       <div
         className={`text-sm rounded-lg p-3 max-w-[75%] whitespace-pre-line ${
           isUser
-            ? 'bg-indigo-600 text-white'
-            : 'bg-white text-slate-700 border border-slate-200'
+            ? "bg-indigo-600 text-white"
+            : "bg-white text-slate-700 border border-slate-200"
         }`}
       >
         <Linkify
@@ -36,7 +34,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
               target="_blank"
               rel="noopener noreferrer"
               className={`underline hover:opacity-80 ${
-                isUser ? 'text-blue-200' : 'text-blue-700 hover:text-blue-900'
+                isUser ? "text-blue-200" : "text-blue-700 hover:text-blue-900"
               }`}
             >
               {decoratedText}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AdminHeader from "@/components/layout/AdminLayout/AdminHeader";
 import { useNavigate } from "react-router-dom";
 import {
@@ -8,15 +8,37 @@ import {
 import { FolderContentModal } from "@/components/modals/ADMINHR/FolderContentModal";
 import HRnav from "@/components/layout/AdminLayout/HRnav";
 import ChatbotAssistant from "@/components/chatbotkilid/ChatbotAssistant";
+import { folderService } from "@/lib/api/Onboardin/onboardingService";
+import type { OnboardingFolder } from "@/lib/api/Onboardin/onboardingService";
+import { toast } from "sonner";
 
 export default function HROverview() {
   const navigate = useNavigate();
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState<FolderModalType>("add");
-  const [selectedFolder, setSelectedFolder] = useState<any>(null);
-  const [folders, setFolders] = useState<any[]>([]);
+  const [selectedFolder, setSelectedFolder] = useState<OnboardingFolder | null>(null);
+  const [folders, setFolders] = useState<OnboardingFolder[]>([]);
   const [folderContentModalOpen, setFolderContentModalOpen] = useState(false);
-  const [selectedFolderForContent, setSelectedFolderForContent] = useState<any>(null);
+  const [selectedFolderForContent, setSelectedFolderForContent] = useState<OnboardingFolder | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load folders from backend
+  useEffect(() => {
+    loadFolders();
+  }, []);
+
+  const loadFolders = async () => {
+    setIsLoading(true);
+    try {
+      const data = await folderService.getAll();
+      setFolders(data);
+    } catch (error) {
+      toast.error("Failed to load folders");
+      console.error("Error loading folders:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleModalOpen = (type: FolderModalType, folder?: any) => {
     setModalType(type);
@@ -24,27 +46,19 @@ export default function HROverview() {
     setModalOpen(true);
   };
 
-  const handleModalSave = (data: any) => {
+  const handleModalSave = (savedFolder: OnboardingFolder) => {
     if (modalType === "add") {
-      const newFolder = {
-        id: Date.now(), // Simple ID generation
-        name: data.name,
-        description: data.description,
-        createdAt: new Date().toISOString(),
-      };
-      setFolders([...folders, newFolder]);
+      setFolders([...folders, savedFolder]);
     } else if (modalType === "edit" && selectedFolder) {
       setFolders(
         folders.map((folder) =>
-          folder.id === selectedFolder.id
-            ? { ...folder, name: data.name, description: data.description }
-            : folder
+          folder.id === selectedFolder.id ? savedFolder : folder
         )
       );
     }
   };
 
-  const handleFolderClick = (folder: any) => {
+  const handleFolderClick = (folder: OnboardingFolder) => {
     setSelectedFolderForContent(folder);
     setFolderContentModalOpen(true);
   };
@@ -108,7 +122,7 @@ export default function HROverview() {
                     </button>
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    {folder.name}
+                    {folder.title}
                   </h3>
                   {folder.description && (
                     <p className="text-sm text-gray-600 mb-4">
@@ -129,7 +143,7 @@ export default function HROverview() {
           open={modalOpen}
           onOpenChange={setModalOpen}
           type={modalType}
-          folder={selectedFolder}
+          folder={selectedFolder || undefined}
           onSave={handleModalSave}
         />
 
@@ -137,7 +151,7 @@ export default function HROverview() {
         <FolderContentModal
           open={folderContentModalOpen}
           onOpenChange={setFolderContentModalOpen}
-          folderName={selectedFolderForContent?.name}
+          folder={selectedFolderForContent}
         />
 
         {/* AI Assistant Button (Bottom Right) */}

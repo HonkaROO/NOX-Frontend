@@ -6,7 +6,9 @@ import {
   TriangleAlertIcon,
 } from "lucide-react"
 import { useTheme } from "next-themes"
-import { Toaster as Sonner, type ToasterProps } from "@/components/ui/sonner"
+import { Toaster as Sonner } from "sonner"
+
+type ToasterProps = React.ComponentProps<typeof Sonner>
 
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = "system" } = useTheme()
@@ -21,6 +23,15 @@ const Toaster = ({ ...props }: ToasterProps) => {
         warning: <TriangleAlertIcon className="size-4" />,
         error: <OctagonXIcon className="size-4" />,
         loading: <Loader2Icon className="size-4 animate-spin" />,
+      }}
+      toastOptions={{
+        classNames: {
+          error: "!text-red-600 !font-semibold",
+          success: "!text-gray-900 !font-semibold",
+          warning: "!text-gray-900 !font-semibold",
+          info: "!text-gray-900 !font-semibold",
+          description: "!text-red-400",
+        },
       }}
       style={
         {

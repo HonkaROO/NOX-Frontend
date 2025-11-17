@@ -2,85 +2,37 @@ import AdminHeader from "@/components/layout/AdminLayout/AdminHeader";
 import HRnav from "@/components/layout/AdminLayout/HRnav";
 import { Button } from "@/components/ui/button";
 import {
-  Ban,
-  CircleCheckBig,
-  ClipboardClock,
   FileText,
   Plus,
+  Sparkles,
+  Loader2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import UploadDocumentDialog from "@/components/modals/ADMINHR/HRUploadModal";
-import HRDocumentViewModal from "@/components/modals/ADMINHR/HRDocumentViewModal";
 import ChatbotAssistant from "@/components/chatbotkilid/ChatbotAssistant";
+import { materialService, type OnboardingMaterial } from "@/lib/api/Onboardin/onboardingService";
+import { toast } from "sonner";
 
-interface Document {
-  id: number;
-  name: string;
-  uploadedBy: string;
-  date: string;
-  size: string;
-  categories: string[];
-  status: string;
-}
+// Helper function to check if file is AI-indexable
+const isAiIndexable = (fileName: string): boolean => {
+  const aiIndexableTypes = [".pdf", ".json", ".md"];
+  const fileExt = "." + fileName.split(".").pop()?.toLowerCase();
+  return aiIndexableTypes.includes(fileExt);
+};
 
-// Mock data
-const INITIAL_DOCUMENTS = [
-  {
-    id: 1,
-    name: "SSS Registration",
-    uploadedBy: "John Doe",
-    date: "8/15/2024",
-    size: "2.5 MB",
-    categories: ["Government"],
-    status: "approved",
-  },
-  {
-    id: 2,
-    name: "Analytics Tools Training",
-    uploadedBy: "Abby Amber",
-    date: "5/10/2025",
-    size: "2.8 MB",
-    categories: ["Department"],
-    status: "approved",
-  },
-  {
-    id: 3,
-    name: "Equipment Assignment",
-    uploadedBy: "Jane Smith",
-    date: "11/2/2024",
-    size: "3.1 MB",
-    categories: ["IT Setup"],
-    status: "approved",
-  },
-  {
-    id: 4,
-    name: "SSS Registration",
-    uploadedBy: "John Doe",
-    date: "5/15/2025",
-    size: "2.5 MB",
-    categories: ["Training Programs"],
-    status: "approved",
-  },
-  {
-    id: 5,
-    name: "Professional Development Plan",
-    uploadedBy: "Ellery Harveen",
-    date: "10/15/2024",
-    size: "163 KB",
-    categories: ["Documentation"],
-    status: "pending",
-  },
-  {
-    id: 6,
-    name: "TIN Registration",
-    uploadedBy: "John Doe",
-    date: "10/23/2025",
-    size: "11 KB",
-    categories: ["Government"],
-    status: "expired",
-  },
-];
+// Helper function to format file size
+const formatFileSize = (url: string): string => {
+  // Since we don't have size from backend, return placeholder
+  // In real implementation, you might want to fetch this separately
+  return "N/A";
+};
+
+// Helper function to format date
+const formatDate = (dateString: string): string => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' });
+};
 
 const TABS = [
   "All Documents",
@@ -97,36 +49,51 @@ export default function HRDocumentManagement() {
   const [activeTab, setActiveTab] = useState("All Documents");
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [viewModalOpen, setViewModalOpen] = useState(false);
-  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
-  const [documents, setDocuments] = useState<Document[]>(INITIAL_DOCUMENTS);
+  const [selectedDocument, setSelectedDocument] = useState<OnboardingMaterial | null>(null);
+  const [materials, setMaterials] = useState<OnboardingMaterial[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load materials from API
+  useEffect(() => {
+    loadMaterials();
+  }, []);
+
+  const loadMaterials = async () => {
+    setIsLoading(true);
+    try {
+      const data = await materialService.getAll();
+      setMaterials(data);
+    } catch (error) {
+      toast.error("Failed to load materials");
+      console.error("Error loading materials:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Filter documents based on active tab
   const filteredDocuments =
     activeTab === "All Documents"
-      ? documents
-      : documents.filter((doc) => doc.categories.includes(activeTab));
+      ? materials
+      : materials.filter((mat) => mat.fileType.includes(activeTab));
 
-  const handleViewDocument = (document: Document) => {
-    setSelectedDocument(document);
+  const handleViewDocument = (material: OnboardingMaterial) => {
+    setSelectedDocument(material);
     setViewModalOpen(true);
   };
 
-  const handleApproveDocument = (document: Document) => {
-    setDocuments(prev =>
-      prev.map(doc =>
-        doc.id === document.id ? { ...doc, status: "approved" } : doc
-      )
-    );
-    console.log("Approved document:", document.name);
+  const handleDeleteMaterial = async (materialId: number) => {
+    try {
+      await materialService.delete(materialId);
+      toast.success("Material deleted successfully");
+      loadMaterials(); // Reload the list
+    } catch (error) {
+      toast.error("Failed to delete material");
+    }
   };
 
-  const handleRejectDocument = (document: Document) => {
-    setDocuments(prev =>
-      prev.map(doc =>
-        doc.id === document.id ? { ...doc, status: "rejected" } : doc
-      )
-    );
-    console.log("Rejected document:", document.name);
+  const handleUploadSuccess = () => {
+    loadMaterials(); // Reload materials after successful upload
   };
 
   return (
@@ -155,34 +122,42 @@ export default function HRDocumentManagement() {
 
             <div className="flex flex-col leading-tight">
               <span className="text-gray-600 text-lg">Total Documents</span>
-              <span className="text-2xl font-semibold text-gray-900">10</span>
+              <span className="text-2xl font-semibold text-gray-900">
+                {isLoading ? <Loader2 className="animate-spin" size={24} /> : materials.length}
+              </span>
             </div>
           </div>
 
           <div className="flex items-center gap-4 w-full rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-            <CircleCheckBig size={40} className="text-green-600" />
+            <Sparkles size={40} className="text-purple-600" />
 
             <div className="flex flex-col leading-tight">
-              <span className="text-gray-600 text-lg">Approved</span>
-              <span className="text-2xl font-semibold text-gray-900">123</span>
+              <span className="text-gray-600 text-lg">AI-Searchable</span>
+              <span className="text-2xl font-semibold text-gray-900">
+                {isLoading ? <Loader2 className="animate-spin" size={24} /> : materials.filter(m => isAiIndexable(m.fileName)).length}
+              </span>
             </div>
           </div>
 
           <div className="flex items-center gap-4 w-full rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-            <ClipboardClock size={40} className="text-gray-800" />
+            <FileText size={40} className="text-amber-600" />
 
             <div className="flex flex-col leading-tight">
-              <span className="text-gray-600 text-lg">Pending Review</span>
-              <span className="text-2xl font-semibold text-gray-900">8</span>
+              <span className="text-gray-600 text-lg">Storage Only</span>
+              <span className="text-2xl font-semibold text-gray-900">
+                {isLoading ? <Loader2 className="animate-spin" size={24} /> : materials.filter(m => !isAiIndexable(m.fileName)).length}
+              </span>
             </div>
           </div>
 
           <div className="flex items-center gap-4 w-full rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-            <Ban size={40} className="text-red-600" />
+            <FileText size={40} className="text-green-600" />
 
             <div className="flex flex-col leading-tight">
-              <span className="text-gray-600 text-lg">Rejected</span>
-              <span className="text-2xl font-semibold text-gray-900">0</span>
+              <span className="text-gray-600 text-lg">PDF Files</span>
+              <span className="text-2xl font-semibold text-gray-900">
+                {isLoading ? <Loader2 className="animate-spin" size={24} /> : materials.filter(m => m.fileName.endsWith('.pdf')).length}
+              </span>
             </div>
           </div>
         </div>
@@ -206,68 +181,86 @@ export default function HRDocumentManagement() {
 
         {/* Document Grid */}
         <div className="grid grid-cols-5 gap-4 px-6">
-          {filteredDocuments.map((doc) => (
-            <div
-              key={doc.id}
-              className="bg-white border border-gray-200 rounded-lg p-4 flex flex-col"
-            >
-              <div className="flex items-start gap-3 mb-3">
-                <div className="bg-green-100 p-2 rounded">
-                  <FileText className="text-green-600" size={24} />
-                </div>
-                <div className="flex flex-wrap gap-1">
-                  {doc.categories.map((cat) => (
-                    <span
-                      key={cat}
-                      className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-600"
-                    >
-                      {cat}
+          {isLoading ? (
+            <div className="col-span-5 flex justify-center items-center py-12">
+              <Loader2 className="animate-spin text-indigo-600" size={48} />
+            </div>
+          ) : filteredDocuments.length === 0 ? (
+            <div className="col-span-5 text-center py-12 text-gray-500">
+              <FileText size={48} className="mx-auto mb-4 text-gray-300" />
+              <p>No documents found</p>
+              <p className="text-sm">Upload a document to get started</p>
+            </div>
+          ) : (
+            filteredDocuments.map((material) => (
+              <div
+                key={material.id}
+                className="bg-white border border-gray-200 rounded-lg p-4 flex flex-col"
+              >
+                <div className="flex items-start gap-3 mb-3">
+                  <div className={`p-2 rounded ${isAiIndexable(material.fileName) ? 'bg-purple-100' : 'bg-gray-100'}`}>
+                    <FileText className={isAiIndexable(material.fileName) ? 'text-purple-600' : 'text-gray-600'} size={24} />
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-600">
+                      {material.fileType}
                     </span>
-                  ))}
-                  <span
-                    className={`text-xs px-2 py-0.5 rounded-full ${
-                      doc.status === "approved"
-                        ? "bg-green-100 text-green-600"
-                        : doc.status === "pending"
-                        ? "bg-pink-100 text-pink-600"
-                        : doc.status === "rejected"
-                        ? "bg-red-100 text-red-600"
-                        : "bg-orange-100 text-orange-600"
-                    }`}
+                    {isAiIndexable(material.fileName) ? (
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 text-purple-600 flex items-center gap-1">
+                        <Sparkles size={10} />
+                        AI-Searchable
+                      </span>
+                    ) : (
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-600">
+                        Storage Only
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <h3 className="font-semibold text-sm mb-1 truncate" title={material.fileName}>
+                  {material.fileName}
+                </h3>
+                <p className="text-xs text-gray-600 mb-1">
+                  Uploaded: {formatDate(material.createdAt)}
+                </p>
+                {material.updatedAt && (
+                  <p className="text-xs text-gray-600 mb-1">
+                    Updated: {formatDate(material.updatedAt)}
+                  </p>
+                )}
+
+                <div className="flex gap-2 mt-auto pt-3">
+                  <a
+                    href={material.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 bg-indigo-600 text-white text-sm py-2 rounded hover:bg-indigo-700 text-center"
                   >
-                    {doc.status}
-                  </span>
+                    View
+                  </a>
+                  <button
+                    onClick={() => handleDeleteMaterial(material.id)}
+                    className="px-3 bg-red-600 text-white text-sm py-2 rounded hover:bg-red-700"
+                  >
+                    Delete
+                  </button>
                 </div>
               </div>
-
-              <h3 className="font-semibold text-sm mb-1">{doc.name}</h3>
-              <p className="text-xs text-gray-600 mb-1">
-                Uploaded by: {doc.uploadedBy}
-              </p>
-              <p className="text-xs text-gray-600 mb-1">Date: {doc.date}</p>
-              <p className="text-xs text-gray-600 mb-3">Size: {doc.size}</p>
-
-              <button
-                onClick={() => handleViewDocument(doc)}
-                className="w-full bg-indigo-600 text-white text-sm py-2 rounded hover:bg-indigo-700 mt-auto"
-              >
-                View
-              </button>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
       <ChatbotAssistant />
       <UploadDocumentDialog
         open={uploadDialogOpen}
-        onOpenChange={setUploadDialogOpen}
-      />
-      <HRDocumentViewModal
-        open={viewModalOpen}
-        onOpenChange={setViewModalOpen}
-        document={selectedDocument}
-        onApprove={handleApproveDocument}
-        onReject={handleRejectDocument}
+        onOpenChange={(open) => {
+          setUploadDialogOpen(open);
+          if (!open) {
+            // Reload materials when dialog closes (in case upload was successful)
+            loadMaterials();
+          }
+        }}
       />
     </AdminHeader>
   );

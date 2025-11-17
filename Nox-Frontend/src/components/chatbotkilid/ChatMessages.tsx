@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import type { ChatMessage as ChatMessageType } from "../../lib/api/chatbotService";
+import type { ChatMessage as ChatMessageType } from "../../lib/api/ChatBot/chatbotService";
 import ChatMessage from "./ChatMessage";
 import ChatLoadingIndicator from "./ChatLoadingIndicator";
 
@@ -8,7 +8,10 @@ interface ChatMessagesProps {
   isLoading: boolean;
 }
 
-export default function ChatMessages({ messages, isLoading }: ChatMessagesProps) {
+export default function ChatMessages({
+  messages,
+  isLoading,
+}: ChatMessagesProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
