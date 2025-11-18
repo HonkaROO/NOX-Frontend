@@ -33,6 +33,12 @@ export class HttpClient {
 
     try {
       const errorData = await response.json();
+      console.log('[HttpClient] Detailed error response:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+        errorData: errorData
+      });
 
       if (errorData.message) {
         errorMessage = errorData.message;
@@ -44,11 +50,22 @@ export class HttpClient {
           .map(([field, messages]) => `${field}: ${(messages as string[]).join(', ')}`)
           .join('; ');
         errorMessage = validationErrors || errorMessage;
+        
+        console.log('[HttpClient] Validation errors parsed:', {
+          rawErrors: errorData.errors,
+          formattedErrors: validationErrors
+        });
       }
     } catch (e) {
+      console.log('[HttpClient] Error response is not JSON:', {
+        status: response.status,
+        statusText: response.statusText,
+        contentType: response.headers.get('content-type')
+      });
       // If response is not JSON, keep the default error message
     }
 
+    console.log('[HttpClient] Final error message:', errorMessage);
     return errorMessage;
   }
 

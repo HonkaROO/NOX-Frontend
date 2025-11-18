@@ -17,26 +17,26 @@ export default function HeaderLayout({ children }: LayoutProps) {
     navigate("/login");
   };
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
+      <header className="bg-card border-b border-border px-6 py-4 shadow-sm">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <img
             src="/NpaxLogo.png"
             alt="N PAX Logo"
-            className="h-7 md:h-8 w-auto"
+            className="h-7 md:h-8 w-auto transition-transform hover:scale-105"
           />
 
           {/* Header Actions */}
           <div className="flex items-center gap-3">
             <button
               onClick={handleLogout}
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 font-medium"
+              className="px-4 py-2 border border-border rounded-lg text-muted-foreground hover:bg-accent/10 hover:text-foreground font-medium transition-all duration-200"
             >
               Logout
             </button>
-            <button className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 font-medium">
+            <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 hover:shadow-md font-medium transition-all duration-200">
               Contact Support
             </button>
           </div>
@@ -44,7 +44,7 @@ export default function HeaderLayout({ children }: LayoutProps) {
       </header>
 
       {/* Main Content */}
-      <main className="mx-auto max-w-7xl p-2 pt-3">{children}</main>
+      <main className="mx-auto max-w-7xl p-4 pt-6">{children}</main>
 
       {/* AI Assistant Button (Bottom Right) */}
       {/* <button className="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full shadow-lg hover:shadow-xl transition-shadow flex flex-col items-center justify-center text-white">
