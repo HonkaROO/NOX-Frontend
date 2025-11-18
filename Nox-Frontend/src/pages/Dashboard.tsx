@@ -5,74 +5,156 @@ import { QuickActionCard } from "@/components/dashboard/QuickActionCard";
 import { TaskModal, type TaskCategory } from "@/components/modals/TaskModal";
 import ChatbotAssistant from "@/components/chatbotkilid/ChatbotAssistant";
 import { apiClient } from "@/lib/api";
+import {
+  folderService,
+  taskService,
+  progressService,
+} from "@/lib/api/Onboardin/onboardingService";
+import type { OnboardingFolder } from "@/lib/api/Onboardin/onboardingService";
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const [modalOpen, setModalOpen] = useState(false);
-   const [username, setUsername] = useState<string>("Guest");
+  const [username, setUsername] = useState<string>("Guest");
+  const [userId, setUserId] = useState<string>("");
   const [activeCategory, setActiveCategory] = useState<TaskCategory | null>(
     null
   );
+  const [selectedFolderId, setSelectedFolderId] = useState<
+    number | undefined
+  >();
+  const [selectedFolderTitle, setSelectedFolderTitle] = useState<
+    string | undefined
+  >();
+  const [folders, setFolders] = useState<OnboardingFolder[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-      const fetchCurrentUser = async () => {
-        try {
-          const user = await apiClient.getCurrentUser();
-          // Use email as username for chatbot
-          setUsername(user.firstName || user.userName || "Guest");
-        } catch (error) {
-          console.error("Failed to fetch current user:", error);
-          // Fallback to Guest if not logged in
-          setUsername("Guest");
-        }
-      };
-  
-      fetchCurrentUser();
-    }, []);
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
 
-  const openModal = (category: TaskCategory) => {
+        // Fetch user data
+        const user = await apiClient.getCurrentUser();
+        setUsername(user.firstName || user.userName || "Guest");
+        setUserId(user.id);
+
+        // Fetch folders from backend
+        const foldersData = await folderService.getAll();
+        setFolders(foldersData);
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+        setUsername("Guest");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const openModal = (
+    category: TaskCategory,
+    folderId: number,
+    folderTitle: string
+  ) => {
     setActiveCategory(category);
+    setSelectedFolderId(folderId);
+    setSelectedFolderTitle(folderTitle);
     setModalOpen(true);
   };
 
-  const quickActions = [
-    {
-      category: "government-forms" as TaskCategory,
-      title: "Government Forms",
-      description: "Complete SSS, PhilHealth, Pag-IBIG registration",
-      progress: 25,
-    },
-    {
-      category: "department-orientation" as TaskCategory,
-      title: "Department Orientation",
-      description: "Learn about your team and role responsibilities",
-      progress: 67,
-    },
-    {
-      category: "it-setup" as TaskCategory,
-      title: "IT Setup",
-      description: "Set up your email, accounts, and software",
-      progress: 90,
-    },
-    {
-      category: "hr-policies" as TaskCategory,
-      title: "HR Policies",
-      description: "Review company policies and benefits",
-      progress: 33,
-    },
-    {
-      category: "training-programs" as TaskCategory,
-      title: "Training Programs",
-      description: "Complete required training and certifications",
-      progress: 40,
-    },
-    {
-      category: "documentation" as TaskCategory,
-      title: "Documentation",
-      description: "Submit required forms and documents",
-      progress: 88,
-    },
-  ];
+  // Calculate progress for a folder based on user's completed tasks
+  const calculateFolderProgress = async (folderId: number): Promise<number> => {
+    if (!userId) return 0;
+
+    try {
+      const tasks = await taskService.getByFolderId(folderId);
+      if (tasks.length === 0) return 0;
+
+      let totalSteps = 0;
+      let completedSteps = 0;
+
+      for (const task of tasks) {
+        const progress = progressService.getTaskProgress(userId, task.id);
+        totalSteps += 1; // Count each task
+        if (progress.status === "completed") {
+          completedSteps += 1;
+        }
+      }
+
+      return totalSteps > 0
+        ? Math.round((completedSteps / totalSteps) * 100)
+        : 0;
+    } catch (error) {
+      console.error("Failed to calculate progress:", error);
+      return 0;
+    }
+  };
+
+  // Map folder title to category type
+  const getCategoryFromTitle = (title: string): TaskCategory => {
+    const lowerTitle = title.toLowerCase();
+    if (lowerTitle.includes("government") || lowerTitle.includes("forms")) {
+      return "government-forms";
+    }
+    if (lowerTitle.includes("hr") || lowerTitle.includes("policies")) {
+      return "hr-policies";
+    }
+    if (lowerTitle.includes("it") || lowerTitle.includes("setup")) {
+      return "it-setup";
+    }
+    if (lowerTitle.includes("training") || lowerTitle.includes("program")) {
+      return "training-programs";
+    }
+    if (
+      lowerTitle.includes("department") ||
+      lowerTitle.includes("orientation")
+    ) {
+      return "department-orientation";
+    }
+    if (
+      lowerTitle.includes("documentation") ||
+      lowerTitle.includes("document")
+    ) {
+      return "documentation";
+    }
+    return "documentation"; // default
+  };
+
+  // Map folders to quick actions with real progress
+  const [quickActions, setQuickActions] = useState<
+    Array<{
+      category: TaskCategory;
+      title: string;
+      description: string;
+      progress: number;
+      folderId: number;
+    }>
+  >([]);
+
+  useEffect(() => {
+    const loadProgress = async () => {
+      if (!userId || folders.length === 0) return;
+
+      const actionsWithProgress = await Promise.all(
+        folders.map(async (folder) => {
+          const progress = await calculateFolderProgress(folder.id);
+          return {
+            category: getCategoryFromTitle(folder.title),
+            title: folder.title,
+            description: folder.description,
+            progress,
+            folderId: folder.id,
+          };
+        })
+      );
+
+      setQuickActions(actionsWithProgress);
+    };
+
+    loadProgress();
+  }, [userId, folders]);
 
   return (
     <HeaderLayout>
@@ -80,7 +162,7 @@ export default function Dashboard() {
       <div className="px-6 py-6">
         {/* Welcome Section */}
         <div className="mb-6">
-        <p className="text-sm text-gray-600 mb-1">Welcome back, {username}</p>
+          <p className="text-sm text-gray-600 mb-1">Welcome back, {username}</p>
 
           {/* Navigation Tabs */}
           <div className="flex gap-6 mb-6 border-b border-gray-200">
@@ -143,17 +225,37 @@ export default function Dashboard() {
           </h2>
 
           {/* Grid of Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {quickActions.map((action) => (
-              <QuickActionCard
-                key={action.category}
-                title={action.title}
-                description={action.description}
-                progress={action.progress}
-                onClick={() => openModal(action.category)}
-              />
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+              <span className="ml-3 text-gray-600">
+                Loading onboarding tasks...
+              </span>
+            </div>
+          ) : quickActions.length === 0 ? (
+            <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+              <p className="text-gray-500 text-lg">
+                No onboarding tasks available yet
+              </p>
+              <p className="text-gray-400 text-sm mt-2">
+                HR will upload tasks soon
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {quickActions.map((action) => (
+                <QuickActionCard
+                  key={action.folderId}
+                  title={action.title}
+                  description={action.description}
+                  progress={action.progress}
+                  onClick={() =>
+                    openModal(action.category, action.folderId, action.title)
+                  }
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -162,6 +264,8 @@ export default function Dashboard() {
         open={modalOpen}
         onOpenChange={setModalOpen}
         category={activeCategory}
+        folderId={selectedFolderId}
+        folderTitle={selectedFolderTitle}
       />
 
       {/* AI Assistant Button (Bottom Right) */}

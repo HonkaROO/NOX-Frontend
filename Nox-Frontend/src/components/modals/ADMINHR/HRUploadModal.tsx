@@ -19,8 +19,16 @@ import {
 import { Button } from "@/components/ui/button";
 import { Upload, X, FileText, Sparkles, FileWarning } from "lucide-react";
 import { toast } from "sonner";
-import { materialService, folderService, taskService } from "@/lib/api/Onboardin/onboardingService";
-import type { OnboardingFolder, OnboardingTask } from "@/lib/api/Onboardin/onboardingService";
+import {
+  materialService,
+  folderService,
+  taskService,
+  stepService,
+} from "@/lib/api/Onboardin/onboardingService";
+import type {
+  OnboardingFolder,
+  OnboardingTask,
+} from "@/lib/api/Onboardin/onboardingService";
 
 interface UploadDocumentDialogProps {
   open: boolean;
@@ -174,6 +182,15 @@ export default function UploadDocumentDialog({
       return;
     }
 
+    // Validate steps
+    const nonEmptySteps = formData.steps.filter((step) => step.trim() !== "");
+    if (nonEmptySteps.length === 0) {
+      toast.error("Steps required", {
+        description: "Please add at least one step to complete this task",
+      });
+      return;
+    }
+
     setIsUploading(true);
 
     try {
@@ -182,12 +199,22 @@ export default function UploadDocumentDialog({
       // Upload to NOX-Backend (which automatically forwards to Noxy AI if supported)
       await materialService.upload(taskId, selectedFile);
 
+      // Save steps to the task
+      const nonEmptySteps = formData.steps.filter(step => step.trim() !== "");
+      for (let i = 0; i < nonEmptySteps.length; i++) {
+        await stepService.create({
+          StepDescription: nonEmptySteps[i],
+          TaskId: taskId,
+          SequenceOrder: i + 1,
+        });
+      }
+
       const isIndexable = isAiIndexable(selectedFile.name);
 
       toast.success("Document uploaded successfully!", {
         description: isIndexable
-          ? "File uploaded and will be indexed for AI search"
-          : "File uploaded to storage",
+          ? "File uploaded with steps and will be indexed for AI search"
+          : "File uploaded with steps to storage",
       });
 
       // Reset form
@@ -247,7 +274,11 @@ export default function UploadDocumentDialog({
               disabled={isLoadingFolders}
             >
               <SelectTrigger className="mt-1">
-                <SelectValue placeholder={isLoadingFolders ? "Loading folders..." : "Select folder"} />
+                <SelectValue
+                  placeholder={
+                    isLoadingFolders ? "Loading folders..." : "Select folder"
+                  }
+                />
               </SelectTrigger>
               <SelectContent>
                 {folders.map((folder) => (
@@ -275,8 +306,8 @@ export default function UploadDocumentDialog({
                     !selectedFolderId
                       ? "Select folder first"
                       : isLoadingTasks
-                        ? "Loading tasks..."
-                        : "Select task"
+                      ? "Loading tasks..."
+                      : "Select task"
                   }
                 />
               </SelectTrigger>
@@ -367,7 +398,9 @@ export default function UploadDocumentDialog({
           {/* Steps To Complete */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <Label className="text-sm">Steps To Complete</Label>
+              <Label className="text-sm">
+                Steps To Complete <span className="text-red-500">*</span>
+              </Label>
               <Button
                 size="sm"
                 variant="default"

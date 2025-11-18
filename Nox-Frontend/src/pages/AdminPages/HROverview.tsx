@@ -28,15 +28,32 @@ export default function HROverview() {
   }, []);
 
   const loadFolders = async () => {
+    console.log('[HROverview] Starting to load folders...');
     setIsLoading(true);
     try {
+      console.log('[HROverview] Calling folderService.getAll()...');
       const data = await folderService.getAll();
+      console.log('[HROverview] Folders loaded successfully:', {
+        count: data.length,
+        folders: data.map(f => ({
+          id: f.id,
+          title: f.title,
+          description: f.description,
+          hasTasks: f.tasks ? f.tasks.length > 0 : false
+        }))
+      });
       setFolders(data);
+      console.log('[HROverview] Folders state updated');
     } catch (error) {
+      console.error('[HROverview] Failed to load folders:', {
+        error: error,
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
+      });
       toast.error("Failed to load folders");
-      console.error("Error loading folders:", error);
     } finally {
       setIsLoading(false);
+      console.log('[HROverview] Loading state set to false');
     }
   };
 
