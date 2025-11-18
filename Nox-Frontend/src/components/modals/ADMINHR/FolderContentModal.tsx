@@ -12,10 +12,9 @@ import {
   materialService,
   stepService,
   type OnboardingFolder,
-  type OnboardingTask,
-  type OnboardingMaterial,
 } from "@/lib/api/Onboardin/onboardingService";
 import { toast } from "sonner";
+import { TaskEditModal } from "./TaskEditModal";
 
 interface FolderItem {
   id: string;
@@ -40,6 +39,8 @@ export function FolderContentModal({
   const [selectedItem, setSelectedItem] = useState<FolderItem | null>(null);
   const [folderItems, setFolderItems] = useState<FolderItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
 
   // Load folder content when folder changes
   useEffect(() => {
@@ -323,7 +324,15 @@ export function FolderContentModal({
 
                 {/* Action Buttons */}
                 <div className="flex gap-3">
-                  <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                  <Button
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    onClick={() => {
+                      if (selectedItem) {
+                        setEditingTaskId(parseInt(selectedItem.id));
+                        setEditModalOpen(true);
+                      }
+                    }}
+                  >
                     Edit
                   </Button>
                   <Button variant="outline">Need Help?</Button>
@@ -338,6 +347,19 @@ export function FolderContentModal({
           </div>
         </div>
       </DialogContent>
+
+      {/* Task Edit Modal */}
+      {editingTaskId && (
+        <TaskEditModal
+          open={editModalOpen}
+          onOpenChange={setEditModalOpen}
+          taskId={editingTaskId}
+          onSuccess={() => {
+            loadFolderContent();
+            toast.success("Task updated successfully!");
+          }}
+        />
+      )}
     </Dialog>
   );
 }

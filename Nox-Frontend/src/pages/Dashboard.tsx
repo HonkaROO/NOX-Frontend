@@ -9,8 +9,10 @@ import {
   folderService,
   taskService,
   progressService,
+  stepService,
 } from "@/lib/api/Onboardin/onboardingService";
 import type { OnboardingFolder } from "@/lib/api/Onboardin/onboardingService";
+import { Progress } from "@/components/ui/progress";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -28,6 +30,8 @@ export default function Dashboard() {
   >();
   const [folders, setFolders] = useState<OnboardingFolder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [overallProgress, setOverallProgress] = useState<number>(0);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -62,6 +66,14 @@ export default function Dashboard() {
     setSelectedFolderId(folderId);
     setSelectedFolderTitle(folderTitle);
     setModalOpen(true);
+  };
+
+  const handleModalClose = (open: boolean) => {
+    setModalOpen(open);
+    if (!open) {
+      // Trigger progress refresh when modal closes
+      setRefreshKey((prev) => prev + 1);
+    }
   };
 
   // Calculate progress for a folder based on user's completed tasks
@@ -137,9 +149,29 @@ export default function Dashboard() {
     const loadProgress = async () => {
       if (!userId || folders.length === 0) return;
 
+      let totalSteps = 0;
+      let completedSteps = 0;
+
       const actionsWithProgress = await Promise.all(
         folders.map(async (folder) => {
           const progress = await calculateFolderProgress(folder.id);
+
+          // Get all tasks for this folder to count steps
+          const tasks = await taskService.getByFolderId(folder.id);
+
+          for (const task of tasks) {
+            // Get steps for each task
+            const steps = await stepService.getByTaskId(task.id);
+            totalSteps += steps.length;
+
+            // Get user progress for this task
+            const taskProgress = progressService.getTaskProgress(
+              userId,
+              task.id
+            );
+            completedSteps += taskProgress.completedSteps.length;
+          }
+
           return {
             category: getCategoryFromTitle(folder.title),
             title: folder.title,
@@ -151,10 +183,15 @@ export default function Dashboard() {
       );
 
       setQuickActions(actionsWithProgress);
+
+      // Calculate overall progress percentage
+      const overallPercentage =
+        totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0;
+      setOverallProgress(overallPercentage);
     };
 
     loadProgress();
-  }, [userId, folders]);
+  }, [userId, folders, refreshKey]);
 
   return (
     <HeaderLayout>
@@ -201,19 +238,10 @@ export default function Dashboard() {
                 Onboarding Progress
               </h2>
               <span className="text-sm font-medium text-gray-700">
-                65% Complete
+                {overallProgress}% Complete
               </span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div
-                className="bg-indigo-600 h-2 rounded-full"
-                style={{ width: "65%" }}
-              ></div>
-            </div>
-            <div className="flex items-center justify-between mt-2 text-xs text-gray-600">
-              <span>Start Date: 2025-11-5</span>
-              <span>Days Active: 60</span>
-            </div>
+            <Progress value={overallProgress} className="w-full" />
           </div>
         </div>
 
@@ -262,7 +290,7 @@ export default function Dashboard() {
       {/* Task Modal */}
       <TaskModal
         open={modalOpen}
-        onOpenChange={setModalOpen}
+        onOpenChange={handleModalClose}
         category={activeCategory}
         folderId={selectedFolderId}
         folderTitle={selectedFolderTitle}

@@ -78,8 +78,8 @@ export interface CreateTaskRequest {
 }
 
 export interface UpdateTaskRequest {
-  title: string;
-  description: string;
+  Title: string;
+  Description: string;
 }
 
 export interface CreateStepRequest {
