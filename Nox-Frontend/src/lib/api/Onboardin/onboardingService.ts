@@ -245,6 +245,13 @@ export const requirementService = {
 
 // User Progress Service (localStorage-based)
 export const progressService = {
+  // Subscribers notified when any progress is saved. Each callback receives the updated UserTaskProgress.
+  _listeners: new Set<(p: UserTaskProgress) => void>(),
+
+  subscribe(fn: (p: UserTaskProgress) => void) {
+    this._listeners.add(fn);
+    return () => this._listeners.delete(fn);
+  },
   getTaskProgress(userId: string, taskId: number): UserTaskProgress {
     const key = `progress_${userId}_${taskId}`;
     const stored = localStorage.getItem(key);
@@ -296,6 +303,19 @@ export const progressService = {
   saveProgress(progress: UserTaskProgress): void {
     const key = `progress_${progress.userId}_${progress.taskId}`;
     localStorage.setItem(key, JSON.stringify(progress));
+    // notify subscribers
+    try {
+      this._listeners.forEach((fn) => {
+        try {
+          fn(progress);
+        } catch (e) {
+          // swallow subscriber errors
+          console.error("progressService subscriber error", e);
+        }
+      });
+    } catch (e) {
+      // defensive
+    }
   },
 
   getAllProgress(userId: string): UserTaskProgress[] {

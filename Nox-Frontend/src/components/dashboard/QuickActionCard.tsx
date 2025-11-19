@@ -13,7 +13,7 @@ export function QuickActionCard({ title, description, progress, onClick }: Quick
       className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow text-left w-full"
     >
       <h3 className="text-lg font-semibold text-gray-900 mb-2 text-center">
-        {title}d
+        {title} Progress
       </h3>
       <p className="text-sm text-gray-600 mb-4 text-center">
         {description}

@@ -25,11 +25,12 @@ interface TaskWithDetails {
   materials: OnboardingMaterial[];
   completedSteps: Set<number>;
   isTaskComplete: boolean;
+  // Whether the task has been started in the UI (or already marked in-progress by backend)
+  started: boolean;
 }
 
 export function TaskProgressContent({
-  folderId,
-  folderTitle,
+  folderId
 }: TaskProgressContentProps) {
   const { user } = useAuth();
   const [tasks, setTasks] = useState<TaskWithDetails[]>([]);
@@ -69,6 +70,10 @@ export function TaskProgressContent({
             materials,
             completedSteps: new Set(progress.completedSteps),
             isTaskComplete: progress.status === "completed",
+            // treat task as started if backend shows 'in-progress' or user already has completed steps
+            started:
+              progress.status === "in-progress" ||
+              progress.completedSteps.length > 0,
           };
         })
       );
@@ -133,7 +138,9 @@ export function TaskProgressContent({
       );
 
     if (!allStepsCompleted) {
-      toast.error("Please complete all steps first");
+      toast.error(
+        "Please complete all steps before marking the task as complete."
+      );
       return;
     }
 
@@ -300,13 +307,17 @@ export function TaskProgressContent({
                             : "bg-white border-gray-200 hover:bg-gray-50"
                         }`}
                         onClick={() =>
+                          // Only allow toggling steps after the user has started the task
+                          selectedTask.started &&
                           !selectedTask.isTaskComplete &&
                           handleStepToggle(step.id)
                         }
                       >
                         <button
                           className="mt-1 shrink-0"
-                          disabled={selectedTask.isTaskComplete}
+                          disabled={
+                            !selectedTask.started || selectedTask.isTaskComplete
+                          }
                         >
                           {isCompleted ? (
                             <CheckSquare className="w-5 h-5 text-green-600" />
@@ -375,17 +386,39 @@ export function TaskProgressContent({
             {/* Action Buttons */}
             <div className="flex gap-3 pt-4">
               <Button
-                onClick={handleMarkTaskComplete}
+                onClick={() => {
+                  if (!selectedTask.started) {
+                    // mark this task as started in local UI state so checkboxes become active
+                    setTasks((prev) =>
+                      prev.map((t) =>
+                        t.task.id === selectedTask.task.id
+                          ? { ...t, started: true }
+                          : t
+                      )
+                    );
+                    setSelectedTask((prev) =>
+                      prev ? { ...prev, started: true } : prev
+                    );
+                    toast.success(
+                      "Task started. You can now complete the steps."
+                    );
+                    return;
+                  }
+
+                  // already started -> attempt to mark complete
+                  handleMarkTaskComplete();
+                }}
                 disabled={
                   selectedTask.isTaskComplete ||
-                  selectedTask.steps.length === 0 ||
-                  !selectedTask.steps.every((step) =>
-                    selectedTask.completedSteps.has(step.id)
-                  )
+                  (!selectedTask.started && selectedTask.steps.length === 0)
                 }
                 className="bg-blue-600 hover:bg-blue-700 text-white"
               >
-                {selectedTask.isTaskComplete ? "Completed ✓" : "Start Task"}
+                {selectedTask.isTaskComplete
+                  ? "Completed ✓"
+                  : !selectedTask.started
+                  ? "Start Task"
+                  : "Mark as Complete"}
               </Button>
               <Button variant="outline">Need Help?</Button>
             </div>
