@@ -190,7 +190,7 @@ export default function Dashboard() {
   return (
     <HeaderLayout>
       {/* Main Content */}
-      <div className="px-6 py-6">
+      <div className="px-6 py-6 ">
         {/* Welcome Section */}
         <div className="mb-6">
           <p className="text-sm text-gray-600 mb-1">Welcome back, {username}</p>

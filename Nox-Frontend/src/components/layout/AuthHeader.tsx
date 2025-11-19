@@ -10,8 +10,14 @@ type LayoutProps = {
 export default function AuthHeader({ children }: LayoutProps) {
   const navigate = useNavigate();
   return (
-    <div>
-      <header className=" sticky top-0 z-50  flex items-center justify-between px-6 md:px-14 py-3 bg-card shadow-sm">
+    <div
+      style={{
+        background:
+          "radial-gradient(ellipse at bottom left, #ffe4e6 0%, #ccfbf1 100%)",
+        minHeight: "100vh",
+      }}
+    >
+      <header className=" sticky top-0 z-50  flex items-center justify-between px-6 md:px-14 py-3 shadow-sm bg-white/40 backdrop-blur-xl border border-white/20">
         <img
           src="/NpaxLogo.png"
           alt="N PAX Logo"
@@ -25,12 +31,9 @@ export default function AuthHeader({ children }: LayoutProps) {
           >
             Login
           </button>
-          <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 hover:shadow-md hover:-translate-y-0.5 font-medium transition-all duration-200">
-            Contact Support
-          </button>
         </div>
       </header>
-      <main>{children}</main>
+      <main className="min-h-full">{children}</main>
     </div>
   );
 }

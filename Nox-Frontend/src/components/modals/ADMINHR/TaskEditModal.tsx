@@ -230,14 +230,14 @@ export function TaskEditModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[450px] h-[92vh] overflow-y-auto rounded-xl">
+      <DialogContent className=" w-[450px] h-[72vh] overflow-auto rounded-xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">
             Edit Task: {task.title}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-4 ">
           {/* Task Title */}
           <div>
             <Label htmlFor="title" className="text-sm">
@@ -416,7 +416,7 @@ export function TaskEditModal({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex justify-end gap-3 pt-2">
+          <div className="flex justify-end gap-3 pt-2 ">
             <Button
               variant="outline"
               onClick={() => onOpenChange(false)}
