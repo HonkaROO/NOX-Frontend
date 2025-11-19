@@ -76,33 +76,7 @@ export default function Dashboard() {
     }
   };
 
-  // Calculate progress for a folder based on user's completed tasks
-  const calculateFolderProgress = async (folderId: number): Promise<number> => {
-    if (!userId) return 0;
-
-    try {
-      const tasks = await taskService.getByFolderId(folderId);
-      if (tasks.length === 0) return 0;
-
-      let totalSteps = 0;
-      let completedSteps = 0;
-
-      for (const task of tasks) {
-        const progress = progressService.getTaskProgress(userId, task.id);
-        totalSteps += 1; // Count each task
-        if (progress.status === "completed") {
-          completedSteps += 1;
-        }
-      }
-
-      return totalSteps > 0
-        ? Math.round((completedSteps / totalSteps) * 100)
-        : 0;
-    } catch (error) {
-      console.error("Failed to calculate progress:", error);
-      return 0;
-    }
-  };
+  // (Folder progress is computed inline in loadProgress using per-step counts)
 
   // Map folder title to category type
   const getCategoryFromTitle = (title: string): TaskCategory => {
@@ -154,14 +128,16 @@ export default function Dashboard() {
 
       const actionsWithProgress = await Promise.all(
         folders.map(async (folder) => {
-          const progress = await calculateFolderProgress(folder.id);
-
           // Get all tasks for this folder to count steps
           const tasks = await taskService.getByFolderId(folder.id);
+
+          let folderTotalSteps = 0;
+          let folderCompletedSteps = 0;
 
           for (const task of tasks) {
             // Get steps for each task
             const steps = await stepService.getByTaskId(task.id);
+            folderTotalSteps += steps.length;
             totalSteps += steps.length;
 
             // Get user progress for this task
@@ -169,14 +145,20 @@ export default function Dashboard() {
               userId,
               task.id
             );
+            folderCompletedSteps += taskProgress.completedSteps.length;
             completedSteps += taskProgress.completedSteps.length;
           }
+
+          const folderProgress =
+            folderTotalSteps > 0
+              ? Math.round((folderCompletedSteps / folderTotalSteps) * 100)
+              : 0;
 
           return {
             category: getCategoryFromTitle(folder.title),
             title: folder.title,
             description: folder.description,
-            progress,
+            progress: folderProgress,
             folderId: folder.id,
           };
         })
@@ -192,6 +174,18 @@ export default function Dashboard() {
 
     loadProgress();
   }, [userId, folders, refreshKey]);
+
+  // Subscribe to local progress changes so Quick Actions update in real-time
+  useEffect(() => {
+    if (!userId) return;
+    const unsubscribe = progressService.subscribe(() => {
+      // trigger reload of quick actions and overall progress
+      setRefreshKey((k) => k + 1);
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, [userId]);
 
   return (
     <HeaderLayout>
