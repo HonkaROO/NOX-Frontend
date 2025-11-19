@@ -28,6 +28,7 @@ export function EmployeeModal({
 }: EmployeeModalProps) {
   const [errors, setErrors] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [isExisting, setIsExisting] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -49,6 +50,15 @@ export function EmployeeModal({
   const validateCredentials = (data: any) => {
     const validationErrors: string[] = [];
     if (type === "add") {
+      // If the HR user indicates this is an existing employee, only validate email
+      if (isExisting) {
+        if (!data.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+          validationErrors.push(
+            "Valid email is required for existing user lookup"
+          );
+        }
+        return validationErrors;
+      }
       if (!data.userName || data.userName.trim().length < 3) {
         validationErrors.push("Username must be at least 3 characters");
       }
@@ -57,8 +67,14 @@ export function EmployeeModal({
       }
       if (!data.password || data.password.length < 6) {
         validationErrors.push("Password must be at least 6 characters");
-      } else if (!/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/.test(data.password)) {
-        validationErrors.push("Password must contain at least 1 uppercase letter, 1 number, and 1 special character");
+      } else if (
+        !/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/.test(
+          data.password
+        )
+      ) {
+        validationErrors.push(
+          "Password must contain at least 1 uppercase letter, 1 number, and 1 special character"
+        );
       }
       if (!data.confirmPassword || data.password !== data.confirmPassword) {
         validationErrors.push("Passwords do not match");
@@ -67,8 +83,14 @@ export function EmployeeModal({
       if (data.password && data.password.length > 0) {
         if (data.password.length < 6) {
           validationErrors.push("Password must be at least 6 characters");
-        } else if (!/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/.test(data.password)) {
-          validationErrors.push("Password must contain at least 1 uppercase letter, 1 number, and 1 special character");
+        } else if (
+          !/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/.test(
+            data.password
+          )
+        ) {
+          validationErrors.push(
+            "Password must contain at least 1 uppercase letter, 1 number, and 1 special character"
+          );
         }
         if (!data.confirmPassword || data.password !== data.confirmPassword) {
           validationErrors.push("Passwords do not match");
@@ -98,6 +120,7 @@ export function EmployeeModal({
                 password: formData.get("password") as string,
                 confirmPassword: formData.get("confirmPassword") as string,
                 departmentId: formData.get("departmentId") as string,
+                isExisting: formData.get("isExisting") as string,
                 role: "User", // HR can only create User role
                 phone: formData.get("phone") as string,
                 address: formData.get("address") as string,
@@ -123,10 +146,33 @@ export function EmployeeModal({
                 }
                 onOpenChange(false);
               } catch (err) {
-                setErrors(err instanceof Error ? err.message : "Failed to save employee");
+                setErrors(
+                  err instanceof Error ? err.message : "Failed to save employee"
+                );
               }
             }}
           >
+            {type === "add" && (
+              <div className="mb-3">
+                <label className="inline-flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={isExisting}
+                    onChange={(e) => setIsExisting(e.target.checked)}
+                    className="form-checkbox h-4 w-4"
+                  />
+                  <span>Existing employee (link an existing account)</span>
+                </label>
+              </div>
+            )}
+
+            {/* hidden field so parent can read the flag from FormData */}
+            <input
+              type="hidden"
+              name="isExisting"
+              value={isExisting ? "true" : "false"}
+            />
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
@@ -164,7 +210,7 @@ export function EmployeeModal({
                   defaultValue={type === "edit" ? employee?.userName : ""}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   placeholder="Enter username"
-                  required={type === "add"}
+                  required={type === "add" && !isExisting}
                   disabled={type === "edit"}
                 />
               </div>
@@ -192,7 +238,8 @@ export function EmployeeModal({
               </label>
               {type === "add" && (
                 <p className="text-xs text-slate-500 mb-2">
-                  Must contain at least: 1 uppercase letter, 1 number, 1 special character
+                  Must contain at least: 1 uppercase letter, 1 number, 1 special
+                  character
                 </p>
               )}
               <div className="relative">
@@ -205,7 +252,8 @@ export function EmployeeModal({
                       ? "Enter password"
                       : "Enter new password (optional)"
                   }
-                  required={type === "add"}
+                  required={type === "add" && !isExisting}
+                  disabled={isExisting}
                 />
                 <button
                   type="button"
@@ -231,7 +279,8 @@ export function EmployeeModal({
                 type="password"
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 placeholder="Confirm password"
-                required={type === "add"}
+                required={type === "add" && !isExisting}
+                disabled={isExisting}
               />
             </div>
 

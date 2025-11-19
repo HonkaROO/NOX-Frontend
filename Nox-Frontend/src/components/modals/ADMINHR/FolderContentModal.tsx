@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -6,12 +6,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { FileText } from "lucide-react";
+import { FileText, Trash2, RefreshCw, Sparkles, AlertCircle } from "lucide-react";
 import {
   taskService,
   materialService,
   stepService,
   type OnboardingFolder,
+  type OnboardingMaterial,
 } from "@/lib/api/Onboardin/onboardingService";
 import { toast } from "sonner";
 import { TaskEditModal } from "./TaskEditModal";
@@ -21,7 +22,7 @@ interface FolderItem {
   name: string;
   description: string;
   createdAt: string;
-  documents: { name: string; downloadUrl?: string }[];
+  documents: { id: number; name: string; downloadUrl?: string }[];
   tasks: string[];
 }
 
@@ -41,6 +42,9 @@ export function FolderContentModal({
   const [isLoading, setIsLoading] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
+  const [deletingMaterialId, setDeletingMaterialId] = useState<number | null>(null);
+  const [replacingMaterialId, setReplacingMaterialId] = useState<number | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Load folder content when folder changes
   useEffect(() => {
@@ -145,6 +149,7 @@ export function FolderContentModal({
               description: task.description,
               createdAt: task.createdAt,
               documents: materials.map((material) => ({
+                id: material.id,
                 name: material.fileName,
                 downloadUrl: material.url,
               })),
@@ -191,6 +196,105 @@ export function FolderContentModal({
       setIsLoading(false);
       console.log("[FolderContentModal] Loading state set to false");
     }
+  };
+
+  // Check if file is AI-indexable
+  const isAiIndexable = (fileName: string): boolean => {
+    const fileExt = "." + fileName.split(".").pop()?.toLowerCase();
+    return [".pdf", ".json", ".md"].includes(fileExt);
+  };
+
+  // Delete material handler
+  const handleDeleteMaterial = async (materialId: number, fileName: string) => {
+    if (!confirm(`Are you sure you want to delete "${fileName}"?\n\nThis will remove it from storage and the AI chatbot will no longer reference it.`)) {
+      return;
+    }
+
+    setDeletingMaterialId(materialId);
+    try {
+      await materialService.delete(materialId);
+
+      toast.success("Material deleted successfully!", {
+        description: isAiIndexable(fileName)
+          ? "Document removed from storage and AI index"
+          : "Document removed from storage",
+      });
+
+      // Reload folder content
+      await loadFolderContent();
+    } catch (error: any) {
+      console.error("Failed to delete material:", error);
+      toast.error("Failed to delete material", {
+        description: error.message || "An error occurred while deleting",
+      });
+    } finally {
+      setDeletingMaterialId(null);
+    }
+  };
+
+  // Replace material handler
+  const handleReplaceMaterial = async (materialId: number, oldFileName: string, newFile: File) => {
+    if (!newFile) return;
+
+    // Validate file type
+    const fileExt = "." + newFile.name.split(".").pop()?.toLowerCase();
+    if (![".pdf", ".json", ".md"].includes(fileExt)) {
+      toast.error("Invalid file type", {
+        description: "Only PDF, JSON, and Markdown files are allowed",
+      });
+      return;
+    }
+
+    // Validate file size (10MB)
+    if (newFile.size > 10 * 1024 * 1024) {
+      toast.error("File too large", {
+        description: "Maximum file size is 10MB",
+      });
+      return;
+    }
+
+    setReplacingMaterialId(materialId);
+    try {
+      // Get the task ID for this material
+      const taskId = parseInt(selectedItem?.id || "0");
+
+      // Delete old material
+      await materialService.delete(materialId);
+
+      // Upload new material
+      await materialService.upload(taskId, newFile);
+
+      const wasIndexable = isAiIndexable(oldFileName);
+      const isNewIndexable = isAiIndexable(newFile.name);
+
+      toast.success("Material replaced successfully!", {
+        description: isNewIndexable
+          ? "New document uploaded and indexed for AI search"
+          : wasIndexable
+          ? "New document uploaded (old AI index removed)"
+          : "New document uploaded to storage",
+      });
+
+      // Reload folder content
+      await loadFolderContent();
+    } catch (error: any) {
+      console.error("Failed to replace material:", error);
+      toast.error("Failed to replace material", {
+        description: error.message || "An error occurred while replacing",
+      });
+    } finally {
+      setReplacingMaterialId(null);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  // Trigger file selection for replacement
+  const triggerFileReplace = (materialId: number) => {
+    setReplacingMaterialId(materialId);
+    fileInputRef.current?.click();
   };
 
   return (
@@ -297,25 +401,66 @@ export function FolderContentModal({
                         {selectedItem.documents.map((doc, index) => (
                           <div
                             key={index}
-                            className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200"
+                            className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors"
                           >
-                            <div className="flex items-center gap-2">
-                              <FileText className="w-4 h-4 text-gray-500" />
-                              <span className="text-sm text-gray-700">
-                                {doc.name}
-                              </span>
+                            <div className="flex items-center gap-2 flex-1 min-w-0">
+                              <FileText className="w-4 h-4 text-gray-500 shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <span className="text-sm text-gray-700 block truncate">
+                                  {doc.name}
+                                </span>
+                                {isAiIndexable(doc.name) && (
+                                  <div className="flex items-center gap-1 mt-0.5">
+                                    <Sparkles size={10} className="text-purple-500" />
+                                    <span className="text-xs text-purple-600">
+                                      AI-Searchable
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                            <Button
-                              variant="link"
-                              size="sm"
-                              className="text-blue-600 hover:text-blue-700"
-                              onClick={() =>
-                                doc.downloadUrl &&
-                                window.open(doc.downloadUrl, "_blank")
-                              }
-                            >
-                              Download
-                            </Button>
+                            <div className="flex items-center gap-2 ml-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 h-8 px-3"
+                                onClick={() =>
+                                  doc.downloadUrl &&
+                                  window.open(doc.downloadUrl, "_blank")
+                                }
+                                title="Download file"
+                              >
+                                Download
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-amber-600 hover:text-amber-700 hover:bg-amber-50 h-8 px-2"
+                                onClick={() => triggerFileReplace(doc.id)}
+                                disabled={replacingMaterialId === doc.id}
+                                title="Replace with new file"
+                              >
+                                {replacingMaterialId === doc.id ? (
+                                  <RefreshCw className="w-4 h-4 animate-spin" />
+                                ) : (
+                                  <RefreshCw className="w-4 h-4" />
+                                )}
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50 h-8 px-2"
+                                onClick={() => handleDeleteMaterial(doc.id, doc.name)}
+                                disabled={deletingMaterialId === doc.id}
+                                title="Delete file"
+                              >
+                                {deletingMaterialId === doc.id ? (
+                                  <Trash2 className="w-4 h-4 animate-pulse" />
+                                ) : (
+                                  <Trash2 className="w-4 h-4" />
+                                )}
+                              </Button>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -360,6 +505,23 @@ export function FolderContentModal({
           }}
         />
       )}
+
+      {/* Hidden file input for material replacement */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".pdf,.json,.md"
+        className="hidden"
+        onChange={(e) => {
+          if (e.target.files && e.target.files[0] && replacingMaterialId) {
+            const file = e.target.files[0];
+            const material = selectedItem?.documents.find(d => d.id === replacingMaterialId);
+            if (material) {
+              handleReplaceMaterial(replacingMaterialId, material.name, file);
+            }
+          }
+        }}
+      />
     </Dialog>
   );
 }
