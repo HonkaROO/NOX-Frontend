@@ -62,23 +62,34 @@ export default function Login() {
       setIsLoading(false);
     }
   };
+  const PALETTE = {
+    text: "#1F2937", // charcoal gray
+    background: "#FFFFFF",
+    primary: "#1E40AF", // deep royal blue
+    secondary: "#E0E7FF", // light peri-winkle
+    accent: "#F97316", // warm orange
+  };
 
   return (
-    <div className="min-h-screen relative">
-      <img
-        src="/loginBG.png"
-        alt="login background"
-        className="w-full h-full absolute inset-0 object-cover"
-      />
+    <div className="min-h-screen">
       {/* Main Content */}
-      <div className="flex items-center justify-center px-4 py-8 min-h-screen relative">
-        <div className="w-full max-w-md">
-          {/* Logo */}
-
-          {/* Login Form Card */}
-            <Card className="shadow-2xl bg-white/10 backdrop-blur-xl border border-white/20">
+      <div
+        className="relative"
+        style={{
+          background:
+            "radial-gradient(ellipse at center, #ffe4e6 0%, #ccfbf1 100%)",
+        }}
+      >
+        <div className="flex items-center justify-center px-4 py-8 min-h-screen relative">
+          <div className="w-full max-w-md">
+            {/* Logo */}
+            {/* Login Form Card */}
+            <Card className="shadow-2xl bg-[#E0E7FF]/0 backdrop-blur-xl border border-white/20">
               <CardHeader className="text-center">
-                <CardTitle className="text-2xl sm:text-3xl font-semibold text-white">
+                <CardTitle
+                  className="text-2xl sm:text-3xl font-bold "
+                  style={{ color: PALETTE.primary }}
+                >
                   <div className="flex justify-center mb-8">
                     <img
                       src="/NpaxLogo.png"
@@ -88,7 +99,10 @@ export default function Login() {
                   </div>
                   Welcome Back
                 </CardTitle>
-                <p className="text-sm text-white/70 font-light mt-2">
+                <p
+                  className="text-sm font-light mt-2"
+                  style={{ color: PALETTE.text }}
+                >
                   Sign in to continue your onboarding journey
                 </p>
               </CardHeader>
@@ -96,7 +110,9 @@ export default function Login() {
                 <form onSubmit={handleLogin} className="space-y-4">
                   {/* Email Field */}
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-white/90">Email Address</Label>
+                    <Label htmlFor="email" style={{ color: PALETTE.text }}>
+                      Email Address
+                    </Label>
                     <Input
                       id="email"
                       type="email"
@@ -106,17 +122,20 @@ export default function Login() {
                         setHasError(false);
                       }}
                       placeholder="Enter your company email"
-                      className={`bg-white/10 border-white/20 text-white placeholder:text-white/50 ${
+                      className={`bg-white/10 border-white/20 placeholder:text-[#1F2937]/50 ${
                         hasError
                           ? "border-red-500 focus-visible:ring-red-500"
                           : "focus-visible:border-white/40"
                       }`}
+                      style={{ color: PALETTE.text }}
                       required
                     />
                   </div>
                   {/* Password Field */}
                   <div className="space-y-2">
-                    <Label htmlFor="password" className="text-white/90">Password</Label>
+                    <Label htmlFor="password" style={{ color: PALETTE.text }}>
+                      Password
+                    </Label>
                     <div className="relative">
                       <Input
                         id="password"
@@ -127,11 +146,12 @@ export default function Login() {
                           setHasError(false);
                         }}
                         placeholder="Enter your password"
-                        className={`pr-10 bg-white/10 border-white/20 text-white placeholder:text-white/50 ${
+                        className={`pr-10 bg-white/10 border-white/20 placeholder:text-[#1F2937]/50 ${
                           hasError
                             ? "border-red-500 focus-visible:ring-red-500"
                             : "focus-visible:border-white/40"
                         }`}
+                        style={{ color: PALETTE.text }}
                         required
                       />
                       <button
@@ -159,14 +179,16 @@ export default function Login() {
                       />
                       <label
                         htmlFor="remember"
-                        className="text-sm font-light cursor-pointer text-white/80"
+                        className="text-sm font-light cursor-pointer"
+                        style={{ color: PALETTE.text }}
                       >
                         Remember me
                       </label>
                     </div>
                     <a
                       href="#"
-                      className="text-sm text-white/80 font-light hover:text-white hover:underline"
+                      className="text-sm font-light hover:underline"
+                      style={{ color: PALETTE.text }}
                     >
                       Forgot password?
                     </a>
@@ -179,14 +201,18 @@ export default function Login() {
                 <CardFooter className="items-center justify-center mt-4">
                   <button
                     onClick={() => navigate("/")}
-                    className="inline-flex items-center text-sm text-white/80 font-medium hover:text-white hover:underline bg-transparent border-none cursor-pointer"
+                    className="inline-flex items-center text-sm font-medium hover:underline bg-transparent border-none cursor-pointer"
+                    style={{ color: PALETTE.text }}
                   >
                     <MoveLeft />
-                    <p className="ml-2">Back to Home</p>
+                    <p className="ml-2" style={{ color: PALETTE.text }}>
+                      Back to Home
+                    </p>
                   </button>
                 </CardFooter>
               </CardContent>
             </Card>
+          </div>
         </div>
       </div>
     </div>

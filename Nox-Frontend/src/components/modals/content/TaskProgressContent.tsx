@@ -420,7 +420,6 @@ export function TaskProgressContent({
                   ? "Start Task"
                   : "Mark as Complete"}
               </Button>
-              <Button variant="outline">Need Help?</Button>
             </div>
           </div>
         ) : (

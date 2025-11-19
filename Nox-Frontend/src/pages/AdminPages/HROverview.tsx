@@ -11,15 +11,19 @@ import ChatbotAssistant from "@/components/chatbotkilid/ChatbotAssistant";
 import { folderService } from "@/lib/api/Onboardin/onboardingService";
 import type { OnboardingFolder } from "@/lib/api/Onboardin/onboardingService";
 import { toast } from "sonner";
+import { Pencil, Trash2 } from "lucide-react";
 
 export default function HROverview() {
   const navigate = useNavigate();
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState<FolderModalType>("add");
-  const [selectedFolder, setSelectedFolder] = useState<OnboardingFolder | null>(null);
+  const [selectedFolder, setSelectedFolder] = useState<OnboardingFolder | null>(
+    null
+  );
   const [folders, setFolders] = useState<OnboardingFolder[]>([]);
   const [folderContentModalOpen, setFolderContentModalOpen] = useState(false);
-  const [selectedFolderForContent, setSelectedFolderForContent] = useState<OnboardingFolder | null>(null);
+  const [selectedFolderForContent, setSelectedFolderForContent] =
+    useState<OnboardingFolder | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   // Load folders from backend
@@ -28,32 +32,32 @@ export default function HROverview() {
   }, []);
 
   const loadFolders = async () => {
-    console.log('[HROverview] Starting to load folders...');
+    console.log("[HROverview] Starting to load folders...");
     setIsLoading(true);
     try {
-      console.log('[HROverview] Calling folderService.getAll()...');
+      console.log("[HROverview] Calling folderService.getAll()...");
       const data = await folderService.getAll();
-      console.log('[HROverview] Folders loaded successfully:', {
+      console.log("[HROverview] Folders loaded successfully:", {
         count: data.length,
-        folders: data.map(f => ({
+        folders: data.map((f) => ({
           id: f.id,
           title: f.title,
           description: f.description,
-          hasTasks: f.tasks ? f.tasks.length > 0 : false
-        }))
+          hasTasks: f.tasks ? f.tasks.length > 0 : false,
+        })),
       });
       setFolders(data);
-      console.log('[HROverview] Folders state updated');
+      console.log("[HROverview] Folders state updated");
     } catch (error) {
-      console.error('[HROverview] Failed to load folders:', {
+      console.error("[HROverview] Failed to load folders:", {
         error: error,
-        message: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : undefined
+        message: error instanceof Error ? error.message : "Unknown error",
+        stack: error instanceof Error ? error.stack : undefined,
       });
       toast.error("Failed to load folders");
     } finally {
       setIsLoading(false);
-      console.log('[HROverview] Loading state set to false');
+      console.log("[HROverview] Loading state set to false");
     }
   };
 
@@ -78,6 +82,23 @@ export default function HROverview() {
   const handleFolderClick = (folder: OnboardingFolder) => {
     setSelectedFolderForContent(folder);
     setFolderContentModalOpen(true);
+  };
+
+  const handleDeleteFolder = async (folder: OnboardingFolder) => {
+    if (
+      !confirm(
+        `Delete folder "${folder.title}"? This will remove all tasks and materials.`
+      )
+    )
+      return;
+    try {
+      await folderService.delete(folder.id);
+      setFolders((prev) => prev.filter((f) => f.id !== folder.id));
+      toast.success("Folder deleted");
+    } catch (error) {
+      console.error("Failed to delete folder:", error);
+      toast.error("Failed to delete folder");
+    }
   };
 
   return (
@@ -128,15 +149,30 @@ export default function HROverview() {
                         📁
                       </span>
                     </div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        // TODO: Add delete functionality
-                      }}
-                      className="text-gray-400 hover:text-red-600"
-                    >
-                      ×
-                    </button>
+                    <div className="flex space-x-3">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          handleModalOpen("edit", folder);
+                        }}
+                        aria-label={`Edit folder ${folder.title}`}
+                        className="transform hover:scale-105 duration-500 ease-in-out transition-transform"
+                      >
+                        <Pencil color="blue" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          void handleDeleteFolder(folder);
+                        }}
+                        aria-label={`Delete folder ${folder.title}`}
+                        className="transform hover:scale-105 duration-500 ease-in-out transition-transform"
+                      >
+                        <Trash2 color="red" />
+                      </button>
+                    </div>
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">
                     {folder.title}

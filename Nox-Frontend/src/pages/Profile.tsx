@@ -1,8 +1,7 @@
 import HeaderLayout from "@/components/layout/HeaderLayout";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { apiClient } from "@/lib/api";
-import type { UserDto } from "@/lib/api/types";
+import { apiClient, type UserDto } from "@/lib/api";
 import ChatbotAssistant from "@/components/chatbotkilid/ChatbotAssistant";
 
 export default function Profile() {
@@ -66,7 +65,7 @@ export default function Profile() {
 
   return (
     <HeaderLayout>
-      <div className="bg-gray-50">
+      <div >
         {/* Header */}
 
         {/* Main Content */}

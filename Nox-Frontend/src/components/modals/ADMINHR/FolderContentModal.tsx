@@ -16,6 +16,7 @@ import {
 } from "@/lib/api/Onboardin/onboardingService";
 import { toast } from "sonner";
 import { TaskEditModal } from "./TaskEditModal";
+import { Separator } from "@/components/ui/separator";
 
 interface FolderItem {
   id: string;
@@ -299,14 +300,15 @@ export function FolderContentModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[750px] h-[92vh] overflow-y-auto rounded-xl">
+      <DialogContent className="w-full h-[92vh] overflow-y-auto rounded-xl">
         <DialogHeader>
-          <DialogTitle>{folder?.title || "Folder Contents"}</DialogTitle>
+          <DialogTitle className="text-4xl ">{folder?.title || "Folder Contents"}</DialogTitle>
+          
         </DialogHeader>
-        <div className="flex gap-6 h-[75vh] overflow-hidden pt-4">
+        <div className="flex gap-6 h-[75vh] overflow-hidden">
           {/* Left Panel - Item List */}
           <div className="w-96 shrink-0 space-y-3 overflow-y-auto pr-2">
-            <h3 className="font-semibold text-sm text-gray-700 mb-4">
+            <h3 className="font-semibold text-lg text-gray-700 mb-4">
               Folder Contents
             </h3>
             {isLoading ? (
@@ -341,6 +343,7 @@ export function FolderContentModal({
               ))
             )}
           </div>
+            
 
           {/* Right Panel - Item Details */}
           <div className="flex-1 overflow-y-auto">
@@ -348,25 +351,25 @@ export function FolderContentModal({
               <div className="space-y-6">
                 {/* Header */}
                 <div>
-                  <h2 className="text-xl font-semibold mb-2">
+                  <h2 className="text-2xl font-semibold mb-2">
                     {selectedItem.name}
                   </h2>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-md text-gray-600">
                     {selectedItem.description}
                   </p>
                 </div>
 
                 {/* Created Date */}
                 <div>
-                  <h3 className="font-semibold text-sm mb-1">Created Date</h3>
-                  <p className="text-sm text-gray-600">
+                  <h3 className="font-semibold text-xl mb-1">Created Date</h3>
+                  <p className="text-md text-gray-600">
                     {new Date(selectedItem.createdAt).toLocaleDateString()}
                   </p>
                 </div>
 
                 {/* Tasks to Complete */}
                 <div>
-                  <h3 className="font-semibold text-sm mb-3">
+                  <h3 className="font-semibold text-xl mb-3">
                     Tasks to Complete
                   </h3>
                   {selectedItem.tasks.length === 0 ? (
@@ -382,10 +385,10 @@ export function FolderContentModal({
                     <ol className="space-y-2">
                       {selectedItem.tasks.map((task, index) => (
                         <li key={index} className="flex gap-3 text-sm">
-                          <span className="shrink-0 w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-medium">
+                          <span className="shrink-0 w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-lg font-medium">
                             {index + 1}
                           </span>
-                          <span className="text-gray-700 pt-0.5">{task}</span>
+                          <span className="text-gray-700 text-lg pt-0.5">{task}</span>
                         </li>
                       ))}
                     </ol>
