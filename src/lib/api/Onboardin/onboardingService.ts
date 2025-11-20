@@ -351,49 +351,52 @@ export const progressService = {
   },
 
   /**
-   * Get task progress - now fetches from backend
+   * Get task progress - merges backend task status with localStorage step tracking
    */
   async getTaskProgress(
     userId: string,
     taskId: number
   ): Promise<UserTaskProgress> {
+    // Always load localStorage first (for step completion data)
+    const key = `progress_${userId}_${taskId}`;
+    const stored = localStorage.getItem(key);
+    const localProgress: UserTaskProgress = stored
+      ? JSON.parse(stored)
+      : {
+          userId,
+          taskId,
+          completedSteps: [],
+          status: "not-started",
+        };
+
     try {
+      // Then fetch backend status
       const allProgress = await userTaskProgressService.getUserProgress(userId);
       const taskProgress = allProgress.find((p) => p.taskId === taskId);
 
       if (taskProgress) {
+        // Merge: backend status + localStorage steps
         return {
           userId,
           taskId,
-          completedSteps: [], // Backend doesn't track steps yet
+          completedSteps: localProgress.completedSteps, // Keep localStorage steps
           status: this._mapBackendStatus(taskProgress.status),
           startedAt:
             taskProgress.status !== "pending"
               ? taskProgress.updatedAt
-              : undefined,
+              : localProgress.startedAt,
           completedAt:
             taskProgress.status === "completed"
               ? taskProgress.updatedAt
-              : undefined,
+              : localProgress.completedAt,
         };
       }
     } catch (error) {
       console.error("Failed to fetch progress from backend:", error);
     }
 
-    // Fallback to localStorage if backend fails
-    const key = `progress_${userId}_${taskId}`;
-    const stored = localStorage.getItem(key);
-    if (stored) {
-      return JSON.parse(stored);
-    }
-
-    return {
-      userId,
-      taskId,
-      completedSteps: [],
-      status: "not-started",
-    };
+    // Return localStorage data if backend has nothing
+    return localProgress;
   },
 
   /**

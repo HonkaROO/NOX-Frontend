@@ -140,11 +140,13 @@ export default function Dashboard() {
             folderTotalSteps += steps.length;
             totalSteps += steps.length;
 
-            // Get user progress for this task (NOW ASYNC)
+            // Get user progress for this task (merges backend status + localStorage steps)
             const taskProgress = await progressService.getTaskProgress(
               userId,
               task.id
             );
+            
+            // Count completed steps from localStorage
             folderCompletedSteps += taskProgress.completedSteps.length;
             completedSteps += taskProgress.completedSteps.length;
           }
