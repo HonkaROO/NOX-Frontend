@@ -1,63 +1,41 @@
-import { useState, useEffect } from "react";
-import AdminHeader from "@/components/layout/AdminLayout/AdminHeader";
-import { useNavigate } from "react-router-dom";
+﻿import { useState, useEffect } from "react";
+import SuperAdminHeader from "@/components/layout/SuperAdminLayout/SuperAdminHeader";
+import { SuperAdminNavigation } from "@/components/modals/SuperAdminModals/SuperAdminNavigation";
 import {
   FolderModal,
   type FolderModalType,
 } from "@/components/modals/ADMINHR/FolderModal";
 import { FolderContentModal } from "@/components/modals/ADMINHR/FolderContentModal";
-import HRnav from "@/components/layout/AdminLayout/HRnav";
 import ChatbotAssistant from "@/components/chatbotkilid/ChatbotAssistant";
 import { folderService } from "@/lib/api/Onboardin/onboardingService";
 import type { OnboardingFolder } from "@/lib/api/Onboardin/onboardingService";
 import { toast } from "sonner";
 import { FolderCardGrid } from "@/components/Superadmin&Admin/FolderCardGrid";
+import { PageHeader } from "@/components/Superadmin&Admin/PageHeader";
 
-export default function HROverview() {
-  const navigate = useNavigate();
+export default function SuperAdminOnboardingOverview() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState<FolderModalType>("add");
-  const [selectedFolder, setSelectedFolder] = useState<OnboardingFolder | null>(
-    null
-  );
+  const [selectedFolder, setSelectedFolder] = useState<OnboardingFolder | null>(null);
   const [folders, setFolders] = useState<OnboardingFolder[]>([]);
   const [folderContentModalOpen, setFolderContentModalOpen] = useState(false);
-  const [selectedFolderForContent, setSelectedFolderForContent] =
-    useState<OnboardingFolder | null>(null);
+  const [selectedFolderForContent, setSelectedFolderForContent] = useState<OnboardingFolder | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load folders from backend
   useEffect(() => {
     loadFolders();
   }, []);
 
   const loadFolders = async () => {
-    console.log("[HROverview] Starting to load folders...");
     setIsLoading(true);
     try {
-      console.log("[HROverview] Calling folderService.getAll()...");
       const data = await folderService.getAll();
-      console.log("[HROverview] Folders loaded successfully:", {
-        count: data.length,
-        folders: data.map((f) => ({
-          id: f.id,
-          title: f.title,
-          description: f.description,
-          hasTasks: f.tasks ? f.tasks.length > 0 : false,
-        })),
-      });
       setFolders(data);
-      console.log("[HROverview] Folders state updated");
     } catch (error) {
-      console.error("[HROverview] Failed to load folders:", {
-        error: error,
-        message: error instanceof Error ? error.message : "Unknown error",
-        stack: error instanceof Error ? error.stack : undefined,
-      });
+      console.error("Failed to load folders:", error);
       toast.error("Failed to load folders");
     } finally {
       setIsLoading(false);
-      console.log("[HROverview] Loading state set to false");
     }
   };
 
@@ -106,40 +84,30 @@ export default function HROverview() {
   };
 
   return (
-    <AdminHeader>
-      <div className="p-6">
-        <HRnav activePage="HROverview" />
+    <SuperAdminHeader>
+      <main className="px-6 lg:px-8 space-y-8 max-w-7xl mx-auto">
+        <SuperAdminNavigation />
 
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-4xl font-semibold">Folder Cards</h1>
-            <p className="pt-2">Shows uploaded Folder Cards and Tasks</p>
-          </div>
-          {/* Add Folder Button */}
-          <div className="mb-6">
-            <button
-              onClick={() => handleModalOpen("add")}
-              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
-            >
-              + Add Folder
-            </button>
-          </div>
-        </div>
-        {/* Contents Here */}
-
-        {/* Folder Cards */}
-        <div>
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Folder Cards</h2>
-          <FolderCardGrid
-            folders={folders}
-            isLoading={isLoading}
-            onFolderClick={handleFolderClick}
-            onEditFolder={handleEditFolder}
-            onDeleteFolder={handleDeleteFolder}
+        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+          <PageHeader
+            title="Onboarding Management"
+            description="Create and manage onboarding folders, tasks, and materials"
+            buttonText="+ Add Folder"
+            onButtonClick={() => handleModalOpen("add")}
           />
+
+          <div className="mt-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Folder Cards</h2>
+            <FolderCardGrid
+              folders={folders}
+              isLoading={isLoading}
+              onFolderClick={handleFolderClick}
+              onEditFolder={handleEditFolder}
+              onDeleteFolder={handleDeleteFolder}
+            />
+          </div>
         </div>
 
-        {/* Folder Modal */}
         <FolderModal
           open={modalOpen}
           onOpenChange={setModalOpen}
@@ -148,16 +116,14 @@ export default function HROverview() {
           onSave={handleModalSave}
         />
 
-        {/* Folder Content Modal */}
         <FolderContentModal
           open={folderContentModalOpen}
           onOpenChange={setFolderContentModalOpen}
           folder={selectedFolderForContent}
         />
 
-        {/* AI Assistant Button (Bottom Right) */}
         <ChatbotAssistant />
-      </div>
-    </AdminHeader>
+      </main>
+    </SuperAdminHeader>
   );
 }

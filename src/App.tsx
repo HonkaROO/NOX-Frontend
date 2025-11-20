@@ -8,6 +8,8 @@ import Profile from './pages/Profile';
 import AIAssistant from './pages/AIAssistant';
 import SuperAdminDashboard from './pages/SuperAdminPages/SuperAdminDashboard';
 import SuperAdminUserManagement from './pages/SuperAdminPages/SuperAdminUserManagement';
+import SuperAdminOnboardingOverview from './pages/SuperAdminPages/SuperAdminOnboardingOverview';
+import SuperAdminDocumentManagement from './pages/SuperAdminPages/SuperAdminDocumentManagement';
 import HRDashboard from './pages/AdminPages/HRDasbhoard';
 import HrEmployeeManagement from './pages/AdminPages/HREmployeeManagement';
 import HRDocumentManagement from './pages/AdminPages/HRDocumentManagement';
@@ -64,6 +66,22 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={['SuperAdmin']}>
               <SuperAdminUserManagement />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/SuperAdminOnboardingOverview" 
+          element={
+            <ProtectedRoute allowedRoles={['SuperAdmin']}>
+              <SuperAdminOnboardingOverview />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/SuperAdminDocumentManagement" 
+          element={
+            <ProtectedRoute allowedRoles={['SuperAdmin']}>
+              <SuperAdminDocumentManagement />
             </ProtectedRoute>
           } 
         />
