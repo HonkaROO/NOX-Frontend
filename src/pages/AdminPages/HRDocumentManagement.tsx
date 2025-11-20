@@ -1,17 +1,15 @@
 import AdminHeader from "@/components/layout/AdminLayout/AdminHeader";
 import HRnav from "@/components/layout/AdminLayout/HRnav";
 import { Button } from "@/components/ui/button";
-import {
-  FileText,
-  Plus,
-  Sparkles,
-  Loader2,
-} from "lucide-react";
+import { FileText, Plus, Sparkles, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import UploadDocumentDialog from "@/components/modals/ADMINHR/HRUploadModal";
 import ChatbotAssistant from "@/components/chatbotkilid/ChatbotAssistant";
-import { materialService, type OnboardingMaterial } from "@/lib/api/Onboardin/onboardingService";
+import {
+  materialService,
+  type OnboardingMaterial,
+} from "@/lib/api/Onboardin/onboardingService";
 import { toast } from "sonner";
 
 // Helper function to check if file is AI-indexable
@@ -31,7 +29,11 @@ const formatFileSize = (url: string): string => {
 // Helper function to format date
 const formatDate = (dateString: string): string => {
   const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' });
+  return date.toLocaleDateString("en-US", {
+    month: "numeric",
+    day: "numeric",
+    year: "numeric",
+  });
 };
 
 const TABS = [
@@ -49,7 +51,8 @@ export default function HRDocumentManagement() {
   const [activeTab, setActiveTab] = useState("All Documents");
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [viewModalOpen, setViewModalOpen] = useState(false);
-  const [selectedDocument, setSelectedDocument] = useState<OnboardingMaterial | null>(null);
+  const [selectedDocument, setSelectedDocument] =
+    useState<OnboardingMaterial | null>(null);
   const [materials, setMaterials] = useState<OnboardingMaterial[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -108,8 +111,9 @@ export default function HRDocumentManagement() {
           </div>
           <div className="flex items-center">
             <Button
-            onClick={() => setUploadDialogOpen(true)}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors ">
+              onClick={() => setUploadDialogOpen(true)}
+              className="relative cursor-pointer overflow-hidden rounded-md border border-indigo-700 bg-indigo-600 px-3 py-1.5 text-white shadow-md inset-shadow-2xs inset-shadow-indigo-400 transition-all before:absolute before:inset-0 before:bg-linear-to-b before:from-white/20 before:to-transparent hover:bg-indigo-500 active:bg-indigo-700 active:shadow-none active:inset-shadow-indigo-800 "
+            >
               <Plus size={36} strokeWidth={3} />
               Upload Document
             </Button>
@@ -123,7 +127,11 @@ export default function HRDocumentManagement() {
             <div className="flex flex-col leading-tight">
               <span className="text-gray-600 text-lg">Total Documents</span>
               <span className="text-2xl font-semibold text-gray-900">
-                {isLoading ? <Loader2 className="animate-spin" size={24} /> : materials.length}
+                {isLoading ? (
+                  <Loader2 className="animate-spin" size={24} />
+                ) : (
+                  materials.length
+                )}
               </span>
             </div>
           </div>
@@ -134,7 +142,11 @@ export default function HRDocumentManagement() {
             <div className="flex flex-col leading-tight">
               <span className="text-gray-600 text-lg">AI-Searchable</span>
               <span className="text-2xl font-semibold text-gray-900">
-                {isLoading ? <Loader2 className="animate-spin" size={24} /> : materials.filter(m => isAiIndexable(m.fileName)).length}
+                {isLoading ? (
+                  <Loader2 className="animate-spin" size={24} />
+                ) : (
+                  materials.filter((m) => isAiIndexable(m.fileName)).length
+                )}
               </span>
             </div>
           </div>
@@ -145,7 +157,11 @@ export default function HRDocumentManagement() {
             <div className="flex flex-col leading-tight">
               <span className="text-gray-600 text-lg">Storage Only</span>
               <span className="text-2xl font-semibold text-gray-900">
-                {isLoading ? <Loader2 className="animate-spin" size={24} /> : materials.filter(m => !isAiIndexable(m.fileName)).length}
+                {isLoading ? (
+                  <Loader2 className="animate-spin" size={24} />
+                ) : (
+                  materials.filter((m) => !isAiIndexable(m.fileName)).length
+                )}
               </span>
             </div>
           </div>
@@ -156,7 +172,11 @@ export default function HRDocumentManagement() {
             <div className="flex flex-col leading-tight">
               <span className="text-gray-600 text-lg">PDF Files</span>
               <span className="text-2xl font-semibold text-gray-900">
-                {isLoading ? <Loader2 className="animate-spin" size={24} /> : materials.filter(m => m.fileName.endsWith('.pdf')).length}
+                {isLoading ? (
+                  <Loader2 className="animate-spin" size={24} />
+                ) : (
+                  materials.filter((m) => m.fileName.endsWith(".pdf")).length
+                )}
               </span>
             </div>
           </div>
@@ -198,8 +218,21 @@ export default function HRDocumentManagement() {
                 className="bg-white border border-gray-200 rounded-lg p-4 flex flex-col"
               >
                 <div className="flex items-start gap-3 mb-3">
-                  <div className={`p-2 rounded ${isAiIndexable(material.fileName) ? 'bg-purple-100' : 'bg-gray-100'}`}>
-                    <FileText className={isAiIndexable(material.fileName) ? 'text-purple-600' : 'text-gray-600'} size={24} />
+                  <div
+                    className={`p-2 rounded ${
+                      isAiIndexable(material.fileName)
+                        ? "bg-purple-100"
+                        : "bg-gray-100"
+                    }`}
+                  >
+                    <FileText
+                      className={
+                        isAiIndexable(material.fileName)
+                          ? "text-purple-600"
+                          : "text-gray-600"
+                      }
+                      size={24}
+                    />
                   </div>
                   <div className="flex flex-wrap gap-1">
                     <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-600">
@@ -218,7 +251,10 @@ export default function HRDocumentManagement() {
                   </div>
                 </div>
 
-                <h3 className="font-semibold text-sm mb-1 truncate" title={material.fileName}>
+                <h3
+                  className="font-semibold text-sm mb-1 truncate"
+                  title={material.fileName}
+                >
                   {material.fileName}
                 </h3>
                 <p className="text-xs text-gray-600 mb-1">

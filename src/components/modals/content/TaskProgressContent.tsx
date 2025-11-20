@@ -29,9 +29,7 @@ interface TaskWithDetails {
   started: boolean;
 }
 
-export function TaskProgressContent({
-  folderId
-}: TaskProgressContentProps) {
+export function TaskProgressContent({ folderId }: TaskProgressContentProps) {
   const { user } = useAuth();
   const [tasks, setTasks] = useState<TaskWithDetails[]>([]);
   const [selectedTask, setSelectedTask] = useState<TaskWithDetails | null>(
@@ -45,6 +43,7 @@ export function TaskProgressContent({
     }
   }, [folderId, user?.id]);
 
+  // ...existing code...
   const loadTasks = async () => {
     if (!user?.id) return;
 
@@ -61,8 +60,11 @@ export function TaskProgressContent({
             materialService.getByTaskId(task.id),
           ]);
 
-          // Get user progress for this task
-          const progress = progressService.getTaskProgress(user.id, task.id);
+          // Get user progress for this task (NOW ASYNC)
+          const progress = await progressService.getTaskProgress(
+            user.id,
+            task.id
+          );
 
           return {
             task,
@@ -70,7 +72,6 @@ export function TaskProgressContent({
             materials,
             completedSteps: new Set(progress.completedSteps),
             isTaskComplete: progress.status === "completed",
-            // treat task as started if backend shows 'in-progress' or user already has completed steps
             started:
               progress.status === "in-progress" ||
               progress.completedSteps.length > 0,
@@ -80,7 +81,6 @@ export function TaskProgressContent({
 
       setTasks(tasksWithDetails);
 
-      // Auto-select first task if available
       if (tasksWithDetails.length > 0 && !selectedTask) {
         setSelectedTask(tasksWithDetails[0]);
       }
@@ -92,11 +92,11 @@ export function TaskProgressContent({
     }
   };
 
-  const handleStepToggle = (stepId: number) => {
+  const handleStepToggle = async (stepId: number) => {
     if (!user?.id || !selectedTask) return;
 
-    // Toggle step completion
-    progressService.toggleStep(user.id, selectedTask.task.id, stepId);
+    // Toggle step completion (NOW ASYNC)
+    await progressService.toggleStep(user.id, selectedTask.task.id, stepId);
 
     // Update local state
     setTasks((prevTasks) =>
@@ -127,10 +127,10 @@ export function TaskProgressContent({
     });
   };
 
-  const handleMarkTaskComplete = () => {
+  // ...existing code...
+  const handleMarkTaskComplete = async () => {
     if (!user?.id || !selectedTask) return;
 
-    // Check if all steps are completed
     const allStepsCompleted =
       selectedTask.steps.length > 0 &&
       selectedTask.steps.every((step) =>
@@ -144,8 +144,8 @@ export function TaskProgressContent({
       return;
     }
 
-    // Mark task as complete
-    progressService.markTaskComplete(user.id, selectedTask.task.id);
+    // Mark task as complete (NOW ASYNC)
+    await progressService.markTaskComplete(user.id, selectedTask.task.id);
 
     // Update local state
     setTasks((prevTasks) =>
@@ -386,9 +386,18 @@ export function TaskProgressContent({
             {/* Action Buttons */}
             <div className="flex gap-3 pt-4">
               <Button
-                onClick={() => {
+                onClick={async () => {
+                  if (!selectedTask) return;
+                  if (!user?.id) return;
+
                   if (!selectedTask.started) {
-                    // mark this task as started in local UI state so checkboxes become active
+                    // Call backend to mark as in_progress
+                    await progressService.startTask(
+                      user.id,
+                      selectedTask.task.id
+                    );
+
+                    // Update local UI state
                     setTasks((prev) =>
                       prev.map((t) =>
                         t.task.id === selectedTask.task.id
@@ -406,7 +415,7 @@ export function TaskProgressContent({
                   }
 
                   // already started -> attempt to mark complete
-                  handleMarkTaskComplete();
+                  await handleMarkTaskComplete();
                 }}
                 disabled={
                   selectedTask.isTaskComplete ||

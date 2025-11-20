@@ -20,7 +20,7 @@ export default function AdminHeader({ children }: LayoutProps) {
 
   return (
     <div className="bg-linear-to-br from-[#ffe4e6] to-[#ccfbf1] min-h-screen">
-      <header className="bg-white/40 border-b border-white/20 px-6 py-4 sticky top-0 z-50 backdrop-blur-xl">
+      <header className="bg-white/30 border-b border-white/20 px-6 py-4 sticky top-0 z-50 backdrop-blur-md">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-2">
