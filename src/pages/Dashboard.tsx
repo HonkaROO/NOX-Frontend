@@ -140,8 +140,8 @@ export default function Dashboard() {
             folderTotalSteps += steps.length;
             totalSteps += steps.length;
 
-            // Get user progress for this task
-            const taskProgress = progressService.getTaskProgress(
+            // Get user progress for this task (NOW ASYNC)
+            const taskProgress = await progressService.getTaskProgress(
               userId,
               task.id
             );
