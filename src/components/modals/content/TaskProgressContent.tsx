@@ -60,7 +60,7 @@ export function TaskProgressContent({ folderId }: TaskProgressContentProps) {
             materialService.getByTaskId(task.id),
           ]);
 
-          // Get user progress for this task (NOW ASYNC)
+          // Get user progress for this task (merges backend + localStorage)
           const progress = await progressService.getTaskProgress(
             user.id,
             task.id
@@ -70,10 +70,11 @@ export function TaskProgressContent({ folderId }: TaskProgressContentProps) {
             task,
             steps: steps.sort((a, b) => a.seqOrder - b.seqOrder),
             materials,
-            completedSteps: new Set(progress.completedSteps),
-            isTaskComplete: progress.status === "completed",
+            completedSteps: new Set(progress.completedSteps), // From localStorage
+            isTaskComplete: progress.status === "completed", // From backend
             started:
               progress.status === "in-progress" ||
+              progress.status === "completed" ||
               progress.completedSteps.length > 0,
           };
         })
@@ -95,20 +96,22 @@ export function TaskProgressContent({ folderId }: TaskProgressContentProps) {
   const handleStepToggle = async (stepId: number) => {
     if (!user?.id || !selectedTask) return;
 
-    // Toggle step completion (NOW ASYNC)
-    await progressService.toggleStep(user.id, selectedTask.task.id, stepId);
+    // Toggle step completion (updates both backend and localStorage)
+    const updatedProgress = await progressService.toggleStep(
+      user.id,
+      selectedTask.task.id,
+      stepId
+    );
 
-    // Update local state
+    // Update local state with the returned progress
     setTasks((prevTasks) =>
       prevTasks.map((t) => {
         if (t.task.id === selectedTask.task.id) {
-          const newCompletedSteps = new Set(t.completedSteps);
-          if (newCompletedSteps.has(stepId)) {
-            newCompletedSteps.delete(stepId);
-          } else {
-            newCompletedSteps.add(stepId);
-          }
-          return { ...t, completedSteps: newCompletedSteps };
+          return {
+            ...t,
+            completedSteps: new Set(updatedProgress.completedSteps),
+            started: updatedProgress.status !== "not-started",
+          };
         }
         return t;
       })
@@ -117,13 +120,11 @@ export function TaskProgressContent({ folderId }: TaskProgressContentProps) {
     // Update selected task
     setSelectedTask((prev) => {
       if (!prev) return null;
-      const newCompletedSteps = new Set(prev.completedSteps);
-      if (newCompletedSteps.has(stepId)) {
-        newCompletedSteps.delete(stepId);
-      } else {
-        newCompletedSteps.add(stepId);
-      }
-      return { ...prev, completedSteps: newCompletedSteps };
+      return {
+        ...prev,
+        completedSteps: new Set(updatedProgress.completedSteps),
+        started: updatedProgress.status !== "not-started",
+      };
     });
   };
 
