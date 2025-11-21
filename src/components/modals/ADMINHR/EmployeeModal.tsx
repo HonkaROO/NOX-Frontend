@@ -100,6 +100,10 @@ export function EmployeeModal({
     return validationErrors;
   };
 
+  const filteredDepartments = departments.filter(
+    (dept) => dept.name !== "System Administration"
+  );
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       {/* Resizing the modal size is this DialogContent*/}
@@ -296,7 +300,7 @@ export function EmployeeModal({
                   required
                 >
                   <option value="">Select Department</option>
-                  {departments.map((dept) => (
+                  {filteredDepartments.map((dept) => (
                     <option key={dept.id} value={dept.id}>
                       {dept.name}
                     </option>
