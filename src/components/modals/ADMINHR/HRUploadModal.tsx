@@ -29,6 +29,7 @@ import type {
   OnboardingFolder,
   OnboardingTask,
 } from "@/lib/api/Onboardin/onboardingService";
+import { chromaDBService } from "@/lib/api/ChatBot/InjectionService";
 
 interface UploadDocumentDialogProps {
   open: boolean;
@@ -196,11 +197,14 @@ export default function UploadDocumentDialog({
     try {
       const taskId = parseInt(selectedTaskId);
 
-      // Upload to NOX-Backend (which automatically forwards to Noxy AI if supported)
-      await materialService.upload(taskId, selectedFile);
+      // Step 1: Upload to NOX-Backend (Azure Blob Storage)
+      const uploadedMaterial = await materialService.upload(
+        taskId,
+        selectedFile
+      );
 
       // Save steps to the task
-      const nonEmptySteps = formData.steps.filter(step => step.trim() !== "");
+      const nonEmptySteps = formData.steps.filter((step) => step.trim() !== "");
       for (let i = 0; i < nonEmptySteps.length; i++) {
         await stepService.create({
           StepDescription: nonEmptySteps[i],
@@ -211,11 +215,37 @@ export default function UploadDocumentDialog({
 
       const isIndexable = isAiIndexable(selectedFile.name);
 
-      toast.success("Document uploaded successfully!", {
-        description: isIndexable
-          ? "File uploaded with steps and will be indexed for AI search"
-          : "File uploaded with steps to storage",
-      });
+      // Step 2: Auto-inject to AI knowledge base if file is AI-indexable
+      if (isIndexable && uploadedMaterial.url) {
+        try {
+          const injectionResult = await chromaDBService.injectDocument(
+            uploadedMaterial.url
+          );
+
+          if (injectionResult.success) {
+            toast.success("Document uploaded & injected successfully!", {
+              description: `File uploaded with steps and ${injectionResult.documents_added} chunks injected into AI knowledge base ✨`,
+            });
+          } else {
+            toast.success("Document uploaded successfully!", {
+              description:
+                "File uploaded with steps, but AI injection failed. You can manually inject it later.",
+            });
+          }
+        } catch (injectionError) {
+          console.error("AI injection error:", injectionError);
+          toast.success("Document uploaded successfully!", {
+            description:
+              "File uploaded with steps, but AI injection failed. You can manually inject it later.",
+          });
+        }
+      } else {
+        toast.success("Document uploaded successfully!", {
+          description: isIndexable
+            ? "File uploaded with steps"
+            : "File uploaded with steps (not AI-indexable format)",
+        });
+      }
 
       // Reset form
       setFormData({

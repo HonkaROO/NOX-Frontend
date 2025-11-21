@@ -29,14 +29,7 @@ export default function HeaderLayout({ children }: LayoutProps) {
           {/* Logo */}
           <div className="flex items-center gap-2">
             <img src="/NpaxLogo.png" alt="N-PAX Logo" className="w-30 h-8" />
-            <div className="flex flex-col">
-              <span className="text-[13px] font-medium text-black">
-                John Doe
-              </span>
-              <span className="text-[10px] font-light text-black">
-                Super Admin
-              </span>
-            </div>
+            <h1 className="font-bold text-xl text-blue-900 ml-5"> SUPER ADMIN</h1>
           </div>
 
           {/* Header Actions */}

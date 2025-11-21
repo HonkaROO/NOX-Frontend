@@ -18,7 +18,6 @@ export default function HRnav({ activePage }: HRnavProps) {
 
   return (
     <>
-      <p className="text-sm text-gray-600 mb-1">Welcome back, John Doe</p>
       <div className="flex gap-6 mb-6 border-b border-gray-200">
         {navItems.map((item) => (
           <button
