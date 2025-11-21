@@ -1,5 +1,5 @@
-import AdminHeader from "@/components/layout/AdminLayout/AdminHeader";
-import HRnav from "@/components/layout/AdminLayout/HRnav";
+﻿import SuperAdminHeader from "@/components/layout/SuperAdminLayout/SuperAdminHeader";
+import { SuperAdminNavigation } from "@/components/modals/SuperAdminModals/SuperAdminNavigation";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -24,13 +24,12 @@ const TABS = [
   "Documentation",
 ];
 
-export default function HRDocumentManagement() {
+export default function SuperAdminDocumentManagement() {
   const [activeTab, setActiveTab] = useState("All Documents");
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [materials, setMaterials] = useState<OnboardingMaterial[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load materials from API
   useEffect(() => {
     loadMaterials();
   }, []);
@@ -48,7 +47,6 @@ export default function HRDocumentManagement() {
     }
   };
 
-  // Filter documents based on active tab
   const filteredDocuments =
     activeTab === "All Documents"
       ? materials
@@ -58,56 +56,58 @@ export default function HRDocumentManagement() {
     try {
       await materialService.delete(materialId);
       toast.success("Material deleted successfully");
-      loadMaterials(); // Reload the list
+      loadMaterials();
     } catch (error) {
       toast.error("Failed to delete material");
     }
   };
 
   return (
-    <AdminHeader>
-      <div className="p-6">
-        <HRnav activePage="HRDocumentManagement" />
+    <SuperAdminHeader>
+      <main className="px-6 lg:px-8 space-y-8 max-w-7xl mx-auto">
+        <SuperAdminNavigation />
 
-        <div className="flex justify-between">
-          <div>
-            <h1 className="text-4xl font-semibold">Document Management</h1>
-            <p className="pt-2">Upload and manage onboarding documents</p>
+        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+          <div className="flex justify-between">
+            <div>
+              <h1 className="text-4xl font-semibold">Document Management</h1>
+              <p className="pt-2">Upload and manage onboarding documents</p>
+            </div>
+            <div className="flex items-center">
+              <Button
+                onClick={() => setUploadDialogOpen(true)}
+                className="relative cursor-pointer overflow-hidden rounded-md border border-indigo-700 bg-indigo-600 px-3 py-1.5 text-white shadow-md inset-shadow-2xs inset-shadow-indigo-400 transition-all before:absolute before:inset-0 before:bg-linear-to-b before:from-white/20 before:to-transparent hover:bg-indigo-500 active:bg-indigo-700 active:shadow-none active:inset-shadow-indigo-800"
+              >
+                <Plus size={36} strokeWidth={3} />
+                Upload Document
+              </Button>
+            </div>
           </div>
-          <div className="flex items-center">
-            <Button
-              onClick={() => setUploadDialogOpen(true)}
-              className="relative cursor-pointer overflow-hidden rounded-md border border-indigo-700 bg-indigo-600 px-3 py-1.5 text-white shadow-md inset-shadow-2xs inset-shadow-indigo-400 transition-all before:absolute before:inset-0 before:bg-linear-to-b before:from-white/20 before:to-transparent hover:bg-indigo-500 active:bg-indigo-700 active:shadow-none active:inset-shadow-indigo-800 "
-            >
-              <Plus size={36} strokeWidth={3} />
-              Upload Document
-            </Button>
-          </div>
+
+          <DocumentStatsCards materials={materials} isLoading={isLoading} />
+          <DocumentFilterTabs
+            tabs={TABS}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+          />
+          <DocumentGrid
+            materials={filteredDocuments}
+            isLoading={isLoading}
+            onDelete={handleDeleteMaterial}
+          />
         </div>
+      </main>
 
-        <DocumentStatsCards materials={materials} isLoading={isLoading} />
-        <DocumentFilterTabs
-          tabs={TABS}
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-        />
-        <DocumentGrid
-          materials={filteredDocuments}
-          isLoading={isLoading}
-          onDelete={handleDeleteMaterial}
-        />
-      </div>
       <ChatbotAssistant />
       <UploadDocumentDialog
         open={uploadDialogOpen}
         onOpenChange={(open) => {
           setUploadDialogOpen(open);
           if (!open) {
-            // Reload materials when dialog closes (in case upload was successful)
             loadMaterials();
           }
         }}
       />
-    </AdminHeader>
+    </SuperAdminHeader>
   );
 }
