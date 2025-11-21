@@ -20,7 +20,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
         />
       )}
       <div
-        className={`text-sm rounded-lg p-3 max-w-[75%] whitespace-pre-line ${
+        className={`text-sm rounded-lg p-3 max-w-[75%] whitespace-pre-line break-words overflow-wrap ${
           isUser
             ? "bg-indigo-600 text-white"
             : "bg-white text-slate-700 border border-slate-200"
@@ -33,7 +33,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
               key={key}
               target="_blank"
               rel="noopener noreferrer"
-              className={`underline hover:opacity-80 ${
+              className={`underline hover:opacity-80 break-all ${
                 isUser ? "text-blue-200" : "text-blue-700 hover:text-blue-900"
               }`}
             >
