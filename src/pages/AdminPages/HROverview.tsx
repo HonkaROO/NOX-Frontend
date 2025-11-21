@@ -110,16 +110,18 @@ export default function HROverview() {
       <div className="p-6">
         <HRnav activePage="HROverview" />
 
-        <div className="flex justify-between items-start">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
           <div>
-            <h1 className="text-4xl font-semibold">Folder Cards</h1>
-            <p className="pt-2">Shows uploaded Folder Cards and Tasks</p>
+            <h1 className="text-2xl md:text-4xl font-semibold">Folder Cards</h1>
+            <p className="pt-2 text-sm md:text-base">
+              Shows uploaded Folder Cards and Tasks
+            </p>
           </div>
           {/* Add Folder Button */}
-          <div className="mb-6">
+          <div className="mb-4 md:mb-6">
             <button
               onClick={() => handleModalOpen("add")}
-              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+              className="px-3 md:px-4 py-1.5 md:py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium text-sm md:text-base w-full sm:w-auto"
             >
               + Add Folder
             </button>
@@ -129,7 +131,9 @@ export default function HROverview() {
 
         {/* Folder Cards */}
         <div>
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Folder Cards</h2>
+          <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3 md:mb-4">
+            Folder Cards
+          </h2>
           <FolderCardGrid
             folders={folders}
             isLoading={isLoading}

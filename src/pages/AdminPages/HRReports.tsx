@@ -100,10 +100,12 @@ export default function HRReports() {
       <div className="p-6">
         <HRnav activePage="HRReports" />
 
-        <div className="flex justify-between items-start">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
           <div>
-            <h1 className="text-4xl font-semibold">Reports</h1>
-            <p className="pt-2">Monitor onboarding compliance</p>
+            <h1 className="text-2xl md:text-4xl font-semibold">Reports</h1>
+            <p className="pt-2 text-sm md:text-base">
+              Monitor onboarding compliance
+            </p>
           </div>
           <div className="flex items-center">
             <Button className="bg-white border border-gray-300 text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
@@ -112,51 +114,67 @@ export default function HRReports() {
           </div>
         </div>
 
-        <div className="grid grid-cols-4 gap-6 pt-12 px-6">
-          <div className="flex items-center gap-4 w-full rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-            <UsersRound size={40} className="text-blue-600" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 pt-6 md:pt-12 px-4 md:px-6">
+          <div className="flex items-center gap-3 md:gap-4 w-full rounded-xl md:rounded-2xl border border-gray-200 bg-white p-3 md:p-4 shadow-sm">
+            <UsersRound size={32} className="text-blue-600 md:w-10 md:h-10" />
 
             <div className="flex flex-col leading-tight">
-              <span className="text-gray-600 text-lg">Total Employees</span>
-              <span className="text-2xl font-semibold text-gray-900">123</span>
+              <span className="text-gray-600 text-sm md:text-lg">
+                Total Employees
+              </span>
+              <span className="text-xl md:text-2xl font-semibold text-gray-900">
+                123
+              </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-4 w-full rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-            <ClockAlert size={40} className="text-red-600" />
+          <div className="flex items-center gap-3 md:gap-4 w-full rounded-xl md:rounded-2xl border border-gray-200 bg-white p-3 md:p-4 shadow-sm">
+            <ClockAlert size={32} className="text-red-600 md:w-10 md:h-10" />
 
             <div className="flex flex-col leading-tight">
-              <span className="text-gray-600 text-lg">At Risk</span>
-              <span className="text-2xl font-semibold text-gray-900">8</span>
+              <span className="text-gray-600 text-sm md:text-lg">At Risk</span>
+              <span className="text-xl md:text-2xl font-semibold text-gray-900">
+                8
+              </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-4 w-full rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-            <ClockCheck size={40} className="text-gray-800" />
+          <div className="flex items-center gap-3 md:gap-4 w-full rounded-xl md:rounded-2xl border border-gray-200 bg-white p-3 md:p-4 shadow-sm">
+            <ClockCheck size={32} className="text-gray-800 md:w-10 md:h-10" />
 
             <div className="flex flex-col leading-tight">
-              <span className="text-gray-600 text-lg">In Progress</span>
-              <span className="text-2xl font-semibold text-gray-900">20</span>
+              <span className="text-gray-600 text-sm md:text-lg">
+                In Progress
+              </span>
+              <span className="text-xl md:text-2xl font-semibold text-gray-900">
+                20
+              </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-4 w-full rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-            <CircleCheckBig size={40} className="text-green-600" />
+          <div className="flex items-center gap-3 md:gap-4 w-full rounded-xl md:rounded-2xl border border-gray-200 bg-white p-3 md:p-4 shadow-sm">
+            <CircleCheckBig
+              size={32}
+              className="text-green-600 md:w-10 md:h-10"
+            />
 
             <div className="flex flex-col leading-tight">
-              <span className="text-gray-600 text-lg">Completed</span>
-              <span className="text-2xl font-semibold text-gray-900">100</span>
+              <span className="text-gray-600 text-sm md:text-lg">
+                Completed
+              </span>
+              <span className="text-xl md:text-2xl font-semibold text-gray-900">
+                100
+              </span>
             </div>
           </div>
         </div>
-        
 
         {/* Employee Table */}
-        <div className="px-6 mt-10">
+        <div className="px-4 md:px-6 mt-6 md:mt-10">
           <Card className="rounded-2xl shadow-sm">
             <CardContent className="p-0">
-              <div className="overflow-hidden rounded-xl border">
-                <table className="w-full border-collapse text-left">
+              <div className="overflow-x-auto rounded-xl border">
+                <table className="w-full border-collapse text-left min-w-[600px]">
                   <thead>
                     <tr className="bg-slate-100 text-sm text-slate-600">
                       <th className="p-4">EMPLOYEE</th>

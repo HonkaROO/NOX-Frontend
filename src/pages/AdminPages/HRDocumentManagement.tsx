@@ -71,25 +71,29 @@ export default function HRDocumentManagement() {
       <div className="p-6">
         <HRnav activePage="HRDocumentManagement" />
 
-        <div className="flex justify-between">
+        <div className="flex flex-col md:flex-row md:justify-between gap-4 md:gap-0">
           <div>
-            <h1 className="text-4xl font-semibold">Document Management</h1>
-            <p className="pt-2">Upload and manage onboarding documents</p>
+            <h1 className="text-2xl md:text-4xl font-semibold">
+              Document Management
+            </h1>
+            <p className="pt-2 text-sm md:text-base">
+              Upload and manage onboarding documents
+            </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <Button
               onClick={() => setUploadDialogOpen(true)}
-              className="relative cursor-pointer overflow-hidden rounded-md border border-indigo-700 bg-indigo-600 px-3 py-1.5 text-white shadow-md inset-shadow-2xs inset-shadow-indigo-400 transition-all before:absolute before:inset-0 before:bg-linear-to-b before:from-white/20 before:to-transparent hover:bg-indigo-500 active:bg-indigo-700 active:shadow-none active:inset-shadow-indigo-800 "
+              className="relative cursor-pointer overflow-hidden rounded-md border border-indigo-700 bg-indigo-600 px-3 py-1.5 text-white shadow-md inset-shadow-2xs inset-shadow-indigo-400 transition-all before:absolute before:inset-0 before:bg-linear-to-b before:from-white/20 before:to-transparent hover:bg-indigo-500 active:bg-indigo-700 active:shadow-none active:inset-shadow-indigo-800 w-full sm:w-auto justify-center"
             >
-              <Plus size={36} strokeWidth={3} />
-              Upload Document
+              <Plus size={20} className="md:w-9 md:h-9" strokeWidth={3} />
+              <span className="text-sm md:text-base">Upload Document</span>
             </Button>
             <Button
               onClick={() => setKnowledgeInjectionOpen(true)}
-              className="relative cursor-pointer overflow-hidden rounded-md border border-purple-700 bg-purple-600 px-3 py-1.5 text-white shadow-md inset-shadow-2xs inset-shadow-purple-400 transition-all before:absolute before:inset-0 before:bg-linear-to-b before:from-white/20 before:to-transparent hover:bg-purple-500 active:bg-purple-700 active:shadow-none active:inset-shadow-purple-800"
+              className="relative cursor-pointer overflow-hidden rounded-md border border-purple-700 bg-purple-600 px-3 py-1.5 text-white shadow-md inset-shadow-2xs inset-shadow-purple-400 transition-all before:absolute before:inset-0 before:bg-linear-to-b before:from-white/20 before:to-transparent hover:bg-purple-500 active:bg-purple-700 active:shadow-none active:inset-shadow-purple-800 w-full sm:w-auto justify-center"
             >
               <Sparkles size={20} strokeWidth={3} />
-              Knowledge Injection
+              <span className="text-sm md:text-base">Knowledge Injection</span>
             </Button>
           </div>
         </div>

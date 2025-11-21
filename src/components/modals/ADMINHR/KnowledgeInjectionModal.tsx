@@ -177,7 +177,7 @@ export default function KnowledgeInjectionModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[500px] max-h-[90vh] overflow-y-auto rounded-xl">
+      <DialogContent className="w-[95vw] sm:w-[500px] max-w-[500px] max-h-[90vh] overflow-y-auto rounded-xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold flex items-center gap-2">
             <Sparkles className="text-purple-600" size={24} />

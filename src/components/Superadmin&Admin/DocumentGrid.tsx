@@ -29,8 +29,8 @@ export function DocumentGrid({
 }: DocumentGridProps) {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-5 gap-4 px-6">
-        <div className="col-span-5 flex justify-center items-center py-12">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4 px-4 md:px-6">
+        <div className="col-span-full flex justify-center items-center py-12">
           <Loader2 className="animate-spin text-indigo-600" size={48} />
         </div>
       </div>
@@ -39,8 +39,8 @@ export function DocumentGrid({
 
   if (materials.length === 0) {
     return (
-      <div className="grid grid-cols-5 gap-4 px-6">
-        <div className="col-span-5 text-center py-12 text-gray-500">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4 px-4 md:px-6">
+        <div className="col-span-full text-center py-12 text-gray-500">
           <FileText size={48} className="mx-auto mb-4 text-gray-300" />
           <p>No documents found</p>
           <p className="text-sm">Upload a document to get started</p>
@@ -50,7 +50,7 @@ export function DocumentGrid({
   }
 
   return (
-    <div className="grid grid-cols-5 gap-4 px-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4 px-4 md:px-6">
       {materials.map((material) => (
         <div
           key={material.id}
